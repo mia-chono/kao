@@ -11,11 +11,11 @@ class ReaperScansDownloader(Downloader):
 
     @staticmethod
     def is_a_series_link(link: str) -> bool:
-        return re.search(r"https://reaperscans\.fr/manga/((\w*-*)+\d*)/?$", link) is not None
+        return re.search(r"https?://(www\.)?reaperscans\.fr/manga/((\w*-*)+\d*)/?$", link) is not None
 
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
-        return re.search(r"https://reaperscans\.fr/((\w*-*)+\d*)/?$", link) is not None
+        return re.search(r"https?://(www\.)?reaperscans\.fr/((\w*-*)+\d*)/?$", link) is not None
 
     @staticmethod
     def _extract_pictures_links_from_webpage(dom) -> list[str]:

@@ -1,7 +1,6 @@
 import re
 
 from downloaders.Downloader import Downloader
-from downloaders.Series import Series
 
 
 class WebtoonDownloader(Downloader):
@@ -13,13 +12,13 @@ class WebtoonDownloader(Downloader):
 
     @staticmethod
     def is_a_series_link(link: str) -> bool:
-        return re.search(r"https?://www\.webtoons\.com/\w{2}/\w+/((\w*-*)+\d*)/list\?title_no=\d+$",
+        return re.search(r"https?://(www\.)?webtoons\.com/\w{2}/\w+/((\w*-*)+\d*)/list\?title_no=\d+$",
                          link) is not None
 
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
         return re.search(
-            r"https?://www\.webtoons\.com/\w{2}/\w+/((\w*-*)+\d*)/[a-zA-Z0-9-]+/viewer\?title_no=\d*&episode_no=\d+$",
+            r"https?://(www\.)?webtoons\.com/\w{2}/\w+/((\w*-*)+\d*)/[a-zA-Z0-9-]+/viewer\?title_no=\d*&episode_no=\d+$",
             link) is not None
 
     @staticmethod

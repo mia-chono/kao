@@ -2,7 +2,6 @@ import base64
 import re
 
 from downloaders.Downloader import Downloader
-from downloaders.Series import Series
 
 
 class Manga18Downloader(Downloader):
@@ -13,11 +12,11 @@ class Manga18Downloader(Downloader):
 
     @staticmethod
     def is_a_series_link(link: str) -> bool:
-        return re.search(r"https://manga18\.club/manhwa/((\w*-*)+\d*)/?$", link) is not None
+        return re.search(r"https?://(www\.)?manga18\.club/manhwa/((\w*-*)+\d*)/?$", link) is not None
 
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
-        return re.search(r"https://manga18\.club/manhwa/.+/(\w+-)?\d+/?$", link) is not None
+        return re.search(r"https?://(www\.)?manga18\.club/manhwa/.+/(\w+-)?\d+/?$", link) is not None
 
     @staticmethod
     def _extract_pictures_links_from_webpage(dom) -> list[str]:

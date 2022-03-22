@@ -1,7 +1,6 @@
 import re
 
 from downloaders.Downloader import Downloader
-from downloaders.Series import Series
 
 
 class ManhuascanDownloader(Downloader):
@@ -12,11 +11,11 @@ class ManhuascanDownloader(Downloader):
 
     @staticmethod
     def is_a_series_link(link: str) -> bool:
-        return re.search(r"https://manhuascan\.us/manga/((\w*-*)+\d*)/?$", link) is not None
+        return re.search(r"https?://(www\.)?manhuascan\.us/manga/((\w*-*)+\d*)/?$", link) is not None
 
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
-        return re.search(r"https://manhuascan\.us/manga/.+/(\w+-)?\d+/?$", link) is not None
+        return re.search(r"https?://(www\.)?manhuascan\.us/manga/.+/(\w+-)?\d+/?$", link) is not None
 
     @staticmethod
     def _extract_pictures_links_from_webpage(dom) -> list[str]:
