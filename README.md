@@ -70,10 +70,10 @@ options:
   The script will creates a pdf inside each sub-folders
   
 ### Errors messages
-  After the next log => `[Info][PDF] creating`
-  if you have the following message :
+  After the next log => `[Info][PDF] creating`    
+  if you have the following message :   
     Image contains an alpha channel which will be stored as a separate soft mask (/SMask) image in PDF.
-  
-  One of your images has a special property... if you want already convert to PDF, you have to convert your picture to remove the mask.
+      
+  One of your images has a special property... if you still want convert to PDF, you have to convert your picture to remove the mask.
   (example jpg to jpg... yes 😂)    
   [image converter online](https://convertio.co/image-converter/)
