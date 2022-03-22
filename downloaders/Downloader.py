@@ -31,7 +31,6 @@ class Downloader:
                 'mobile': False
             },
         )
-        self.last_response = None
 
     @staticmethod
     def is_a_series_link(link: str) -> bool:
@@ -113,7 +112,7 @@ class Downloader:
 
         return series
 
-    def _download_chapters_from_series(self, series_to_download: Series):
+    def _download_chapters_from_series(self, series_to_download: Series) -> Series:
         retry_download = 0
         total_chapters = len(series_to_download.get_chapters_links())
         retry = True
