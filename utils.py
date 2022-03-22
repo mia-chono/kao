@@ -65,3 +65,10 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger]) -> O
         for logger in loggers:
             logger.log("[Error][PDF] {error}".format(error=e))
         return
+
+
+def folder_contains_files(list_of_path: list[str]) -> bool:
+    for file_name in list_of_path:
+        if os.path.isfile(file_name):
+            return True
+    return False
