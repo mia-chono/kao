@@ -5,6 +5,7 @@ from downloaders.Chapter import Chapter
 from downloaders.Downloader import Downloader
 from downloaders.Manga18Downloader import Manga18Downloader
 from downloaders.ManhuascanDownloader import ManhuascanDownloader
+from downloaders.PersonalDownloander import PersonalDownloader
 from downloaders.ReaperScansDownloader import ReaperScansDownloader
 from downloaders.WebtoonDownloader import WebtoonDownloader
 from loggers.ConsoleLogger import ConsoleLogger
@@ -20,6 +21,7 @@ loggers = [
     FileLogger("kao", "log")
 ]
 list_downloaders: [Downloader] = [
+    PersonalDownloader(base_dir, loggers),
     WebtoonDownloader(base_dir, loggers),
     Manga18Downloader(base_dir, loggers),
     ManhuascanDownloader(base_dir, loggers),
