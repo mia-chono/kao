@@ -29,20 +29,20 @@ list_downloaders: [Downloader] = [
 ]
 
 
-def download_series(series_to_download: list[str]) -> Chapter:
+def download_series(series_to_download: list[str], force_re_dl: bool) -> Chapter:
     for obj in series_to_download:
         for downloader in list_downloaders:
             if downloader.platform == obj.get("platform"):
-                series = downloader.download_series(obj.get("link"))
+                series = downloader.download_series(obj.get("link"), force_re_dl)
                 for chapter in series.get_chapters():
                     yield chapter
 
 
-def download_chapters(chapter_to_download: list[str]) -> Chapter:
+def download_chapters(chapter_to_download: list[str], force_re_dl: bool) -> Chapter:
     for downloader in list_downloaders:
         for obj in chapter_to_download:
             if downloader.platform == obj.get("platform"):
-                yield downloader.download_chapter(obj.get("link"))
+                yield downloader.download_chapter(obj.get("link"), force_re_dl)
 
 
 def get_series_and_chapters_links(links: list[str]) -> tuple[list[str], list[str]]:
@@ -73,12 +73,12 @@ def get_series_and_chapters_links(links: list[str]) -> tuple[list[str], list[str
     return series_to_download, chapters_to_download
 
 
-def download_all_chapters(series_to_download: list[str], chapters_to_download: list[str]) -> list[str]:
+def download_all_chapters(series_to_download: list[str], chapters_to_download: list[str], force_re_dl: bool) -> list[str]:
     chapters = []
-    for chapter in download_chapters(chapters_to_download):
+    for chapter in download_chapters(chapters_to_download, force_re_dl):
         chapters.append(chapter)
 
-    for chapter in download_series(series_to_download):
+    for chapter in download_series(series_to_download, force_re_dl):
         chapters.append(chapter)
 
     return chapters
@@ -91,6 +91,12 @@ if __name__ == '__main__':
                         nargs="+",
                         dest="links",
                         help="Give chapters or series links")
+    parser.add_argument("-f",
+                        "--force",
+                        dest="force_re_dl",
+                        help="Download again the scan",
+                        action=argparse.BooleanOptionalAction,
+                        default=False)
     parser.add_argument("-s",
                         "--support",
                         dest="support",
@@ -111,6 +117,6 @@ if __name__ == '__main__':
             links[index] = link[:-1]
 
     series_links, chapters_links = get_series_and_chapters_links(links)
-    download_all_chapters(series_links, chapters_links)
+    download_all_chapters(series_links, chapters_links, args.force_re_dl)
     for logger in loggers:
         logger.log("[Success] downloads completed")
