@@ -1,25 +1,19 @@
 # KAO
 ## Console Help
-```
-usage: main.py [-h] [-l LINKS [LINKS ...]] [-s | --support | --no-support]
-  ```
-  usage: main.py [-h] [-l LINKS [LINKS ...]] [-s | --support | --no-support]
+```bash
+usage: main.py [-h] [-l LINKS [LINKS ...]] [-f | --force | --no-force] [-s | --support | --no-support]
+
 Downloader of manwha or manga scans
-  Downloader of manwha or manga scans
+
 options:
   -h, --help            show this help message and exit
   -l LINKS [LINKS ...], --links LINKS [LINKS ...]
                         Give chapters or series links
+  -f, --force, --no-force
+                        Download again the scan (default: False)
   -s, --support, --no-support
                         Said supported websites (default: False)
 ```
-  options:
-    -h, --help            show this help message and exit
-    -l LINKS [LINKS ...], --links LINKS [LINKS ...]
-                          Give chapters or series links
-    -s, --support, --no-support
-                          Said supported websites (default: False)
-  ```
 
 ## Sites Supported
 > last update 2022.02.16
@@ -33,8 +27,10 @@ options:
   * ReaperScans
   * Webtoon
 
+> *information*: you can download again a same scan with force parameter
+
 ## Personal folders
-  > last update 2022.03.22
+  > last update 2022.04.12
   We now have the possibility to convert downloaded pictures to pdf!
 
 ### Example 1: Folder with image
