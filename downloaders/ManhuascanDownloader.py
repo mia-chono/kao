@@ -25,7 +25,7 @@ class ManhuascanDownloader(Downloader):
 
         return pictures_links
 
-    def download_series(self, link: str):
+    def download_series(self, link: str, force_re_dl: bool = False):
         if link[len(link) - 1] != "/":
             link += "/"
 
@@ -43,7 +43,7 @@ class ManhuascanDownloader(Downloader):
             series.add_chapter_link(chapter_tags.find("a").attrs["href"])
         series.get_chapters_links().reverse()
 
-        series = self._download_chapters_from_series(series)
+        series = self._download_chapters_from_series(series, force_re_dl)
 
         for logger in self.loggers:
             logger.log("[Info][{}][series] '{}': completed".format(self.platform, series.get_name()))

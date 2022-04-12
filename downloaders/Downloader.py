@@ -97,7 +97,7 @@ class Downloader:
         dom = etree.HTML(str(soup))
         return soup, dom
 
-    def download_series(self, link: str) -> Series:
+    def download_series(self, link: str, force_re_dl: bool = False) -> Series:
         raise "Not Implemented"
 
     def generate_series(self, series_title: str, link: str) -> Series:
@@ -112,7 +112,7 @@ class Downloader:
 
         return series
 
-    def _download_chapters_from_series(self, series_to_download: Series) -> Series:
+    def _download_chapters_from_series(self, series_to_download: Series, force_re_dl: bool) -> Series:
         retry_download = 0
         total_chapters = len(series_to_download.get_chapters_links())
         retry = True
@@ -137,7 +137,7 @@ class Downloader:
                         retry = False
                         continue
 
-                    chapter = self.download_chapter(series_to_download.get_chapter_link(index))
+                    chapter = self.download_chapter(series_to_download.get_chapter_link(index), force_re_dl)
                     series_to_download.add_chapter(chapter)
                     time.sleep(1.5)
                     retry = False
@@ -150,7 +150,7 @@ class Downloader:
             retry = True
         return series_to_download
 
-    def download_chapter(self, link: str) -> Chapter:
+    def download_chapter(self, link: str, force_re_dl: bool = False) -> Chapter:
         raise "Not Implemented"
 
     def _download_chapter_files(self, dom: etree._Element, series_title: str, series_chapter: str, referer: str,

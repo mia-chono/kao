@@ -32,7 +32,7 @@ class WebtoonDownloader(Downloader):
 
         return pictures_links
 
-    def download_series(self, link: str):
+    def download_series(self, link: str, force_re_dl: bool = False):
         for logger in self.loggers:
             logger.log("[Info][{}][Series] Get HTML content".format(self.platform))
 
@@ -53,7 +53,7 @@ class WebtoonDownloader(Downloader):
             url = f"{base_link}/ep{chap_number}/viewer?title_no={series_id}&episode_no={chap_number}"
             series.add_chapter_link(url)
 
-        series = self._download_chapters_from_series(series)
+        series = self._download_chapters_from_series(series, force_re_dl)
 
         for logger in self.loggers:
             logger.log("[Info][{}][series] '{}': completed".format(self.platform, series.get_name()))
