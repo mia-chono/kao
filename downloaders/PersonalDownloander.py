@@ -24,16 +24,8 @@ class PersonalDownloader(Downloader):
             return False
         return utils.folder_contains_files([os.path.join(link, p) for p in os.listdir(link)])
 
-    @staticmethod
-    def _extract_pictures_links_from_webpage(dom) -> list[str]:
-        img_tags = dom.xpath("//*[@id='readerarea']//img")
-
-        pictures_links = list(map(lambda img_tag: img_tag.get("src"), img_tags))
-
-        return pictures_links
-
-    def download_series(self, link: str):
-        series_title = link[link.rfind(os.sep):]
+    def download_series(self, link: str, force_re_dl: bool = False):
+        series_title = link[link.rfind(os.sep) + 1:]
         series = self.generate_series(series_title, link)
         folders = [os.path.join(link, p) for p in os.listdir(link)]
 
@@ -44,8 +36,15 @@ class PersonalDownloader(Downloader):
         return series
 
     def download_chapter(self, link: str, force_re_dl: bool = False):
-        name = os.path.abspath(os.path.join(link, os.pardir))[link.rfind(os.sep):]
-        chapter = Chapter("Custom Series", name, self.platform)
+        path = os.path.abspath(os.path.join(link, os.pardir))
+        series_name = path[path.rfind(os.sep) + 1:]
+        chap_name = link[link.rfind(os.sep) + 1:]
+
+        if series_name is None:
+            series_name = "Custom Series"
+        if chap_name is None:
+            chap_name = "unknown chap"
+        chapter = Chapter(series_name, chap_name, self.platform)
 
         for logger in self.loggers:
             logger.log("[Info][{}][Chapter] '{}': Creating pdf".format(self.platform, chapter.get_full_name()))

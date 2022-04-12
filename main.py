@@ -106,6 +106,9 @@ if __name__ == '__main__':
         exit(1)
 
     links = args.links
+    for index, link in enumerate(links):
+        if link[-1] == '"':
+            links[index] = link[:-1]
 
     series_links, chapters_links = get_series_and_chapters_links(links)
     download_all_chapters(series_links, chapters_links)
