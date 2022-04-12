@@ -40,6 +40,8 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger]) -> O
         info_name = ""
 
         for i in range(0, len(images_list)):
+            if "pdf" in images_list[i]:
+                continue
             if imghdr.what(images_list[i]) is None:
                 for logger in loggers:
                     logger.log("[Info][PDF] Img corrupted")
