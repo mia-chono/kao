@@ -1,9 +1,9 @@
 import imghdr
 import os
+import img2pdf
+
 from os import path
 from typing import Optional
-
-import img2pdf
 
 from loggers import Logger
 
