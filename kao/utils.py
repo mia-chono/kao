@@ -1,12 +1,11 @@
 import imghdr
-import io
 import os
-import img2pdf
-
+import shutil
 from os import path
 from pathlib import Path
 from typing import Optional
 
+import img2pdf
 from PIL import ImageFile, Image
 
 from .loggers import Logger
@@ -66,7 +65,7 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
                 for logger in loggers:
                     logger.log("[Info][PDF] Img corrupted")
                 info_name = "[has_corrupted_images]"
-                images_list[i] = path.join("..", "corrupted_picture.jpg")
+                images_list[i] = path.join(".", "corrupted_picture.jpg")
 
         # Remove small img
         [images_list.pop(x) for x in img_to_remove]
@@ -112,3 +111,27 @@ def ensure_is_image(img_path: str, alternative_file_name: Optional[str] = None) 
     img = Image.open(img_path)
     rgb_img = img.convert('RGB')
     rgb_img.save(path.join(file_path, alternative_file_name if alternative_file_name is not None else file_name))
+
+
+def create_directory(directory_path: str) -> None:
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+
+
+def move_pdf_files_from_folder(folder_path: str, destination_path: str, loggers: list[Logger]) -> None:
+    for logger in loggers:
+        logger.log("[Info] moving all pdf files from {} to {}".format(folder_path, destination_path))
+
+    # Move all pdf files from folder_path to destination_path by series name
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            folder_path = Path(root).parent
+            folder_name = Path(folder_path).name
+            if folder_name == "pdf":
+                continue
+            elif file.endswith(".pdf"):
+                create_directory(os.path.join(destination_path, folder_name))
+                shutil.move(os.path.join(root, file), os.path.join(destination_path, folder_name, file))
+
+    for logger in loggers:
+        logger.log("[Info] all pdf files moved")

@@ -46,7 +46,7 @@ class Downloader:
         if path.exists(chapter_path):
             shutil.rmtree(chapter_path)
 
-        os.makedirs(chapter_path)
+        utils.create_directory(chapter_path)
 
     @staticmethod
     def _pdf_exists(chapter_path: str, pdf_file_name: str) -> Optional[str]:

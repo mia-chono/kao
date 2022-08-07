@@ -1,6 +1,7 @@
 import os
 import argparse
 
+from kao import utils
 from kao import Chapter
 from kao import Downloader
 from kao import Manga18Downloader
@@ -73,7 +74,8 @@ def get_series_and_chapters_links(links: list[str]) -> tuple[list[str], list[str
     return series_to_download, chapters_to_download
 
 
-def download_all_chapters(series_to_download: list[str], chapters_to_download: list[str], force_re_dl: bool, keep_img: bool) -> list[str]:
+def download_all_chapters(series_to_download: list[str], chapters_to_download: list[str], force_re_dl: bool,
+                          keep_img: bool) -> list[str]:
     chapters = []
     for chapter in download_chapters(chapters_to_download, force_re_dl, keep_img):
         chapters.append(chapter)
@@ -103,6 +105,12 @@ if __name__ == '__main__':
                         help="Download again the scan",
                         action=argparse.BooleanOptionalAction,
                         default=False)
+    parser.add_argument("-p",
+                        "--pdf",
+                        dest="move_pdf",
+                        help="Move all pdf files to pdf folder (folder will be created if not exists at the root of the downloads folder)",
+                        action=argparse.BooleanOptionalAction,
+                        default=False)
     parser.add_argument("-s",
                         "--support",
                         dest="support",
@@ -114,15 +122,19 @@ if __name__ == '__main__':
 
     if args.support:
         print("Supported websites:\n\t{}".format(", ".join([downloader.platform for downloader in list_downloaders])))
-    if not args.links:
-        exit(1)
 
-    links = args.links
-    for index, link in enumerate(links):
-        if link[-1] == '"':
-            links[index] = link[:-1]
+    if args.links:
+        links = args.links
+        for index, link in enumerate(links):
+            if link[-1] == '"':
+                links[index] = link[:-1]
 
-    series_links, chapters_links = get_series_and_chapters_links(links)
-    download_all_chapters(series_links, chapters_links, args.force_re_dl, args.keep_img)
-    for logger in loggers:
-        logger.log("[Success] downloads completed")
+        series_links, chapters_links = get_series_and_chapters_links(links)
+        download_all_chapters(series_links, chapters_links, args.force_re_dl, args.keep_img)
+        for logger in loggers:
+            logger.log("[Success] downloads completed")
+
+    if args.move_pdf:
+        destination_dir = os.path.join(base_dir, "pdf")
+        utils.create_directory(destination_dir)
+        utils.move_pdf_files_from_folder(base_dir, destination_dir, loggers)

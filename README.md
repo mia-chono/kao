@@ -12,7 +12,8 @@ options:
   -k, --keep-img, --no-keep-img
                         If you want keep all images (default: False)
   -f, --force, --no-force
-                        Download again the scan (default: False)
+                        Download again the scan (default: False)                 
+  -p, --pdf, --no-pdf   Move all pdf files to pdf folder (folder will be created if not exists at the root of the downloads folder) (default: False)
   -s, --support, --no-support
                         Said supported websites (default: False)
 ```
@@ -25,11 +26,32 @@ options:
 * Webtoon
 
 > *information*: you can download again a same scan with force parameter
+## Group all PDF in one directory
+* update 2022.08.07
+When you use the property --pdf, all pdf files will be moved to a folder named pdf in downloads folder.
+
+Example:
+```
+/path/to/manga/chap-01
+ |_ chap-01.pdf
+/path/to/manga/chap-02
+ |_ chap-02.pdf
+/path/to/manga2/chap-01
+ |_ chap-01.pdf
+```
+
+Result:
+```
+/downloads/pdf/manga
+ |_ chap-01.pdf
+ |_ chap-02.pdf
+/downloads/pdf/manga2
+ |_ chap-01.pdf
+```
 
 ## Personal folders
 * update 2022.08.07  
-Fix image conversion to pdf. Now we ensure image format.   
-* 
+Fix image conversion to pdf. Now we ensure image format.
 * update 2022.04.12  
 We now have the possibility to convert downloaded pictures to pdf!
 
