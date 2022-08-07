@@ -9,6 +9,8 @@ options:
   -h, --help            show this help message and exit
   -l LINKS [LINKS ...], --links LINKS [LINKS ...]
                         Give chapters or series links
+  -k, --keep-img, --no-keep-img
+                        If you want keep all images (default: False)
   -f, --force, --no-force
                         Download again the scan (default: False)
   -s, --support, --no-support
@@ -22,16 +24,14 @@ options:
 * Manhuascan
 * ReaperScans
 * Webtoon
-  * Manga18.club
-  * Manhuascan
-  * ReaperScans
-  * Webtoon
 
 > *information*: you can download again a same scan with force parameter
 
 ## Personal folders
-  > last update 2022.04.12
-  We now have the possibility to convert downloaded pictures to pdf!
+  > last update 2022.04.12  
+  We now have the possibility to convert downloaded pictures to pdf!    
+  > last update 2022.08.07   
+  fix image conversion to pdf. Now we ensure image format.   
 
 ### Example 1: Folder with image
   example:
@@ -69,7 +69,11 @@ options:
   After the next log => `[Info][PDF] creating`    
   if you have the following message :   
     Image contains an alpha channel which will be stored as a separate soft mask (/SMask) image in PDF.
-      
+
+  Retry with the following command:
+    `py main.py -kl /path/to/manga/chap-01`
+
+  But if the problem persists...
   One of your images has a special property... if you still want convert to PDF, you have to convert your picture to remove the mask.
   (example jpg to jpg... yes 😂)    
   [image converter online](https://convertio.co/image-converter/)
