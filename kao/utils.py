@@ -1,7 +1,6 @@
 import imghdr
 import os
 import shutil
-from os import path
 from pathlib import Path
 from typing import Optional
 
@@ -45,11 +44,16 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
     try:
         for logger in loggers:
             logger.log("[Info][PDF] creating")
-        images_list = [path.join(episode_dir, element) for element in os.listdir(episode_dir)]
+        images_list = [os.path.join(episode_dir, element) for element in os.listdir(episode_dir) if not element.endswith(".pdf")]
         images_list.sort()
         info_name = ""
 
         img_to_remove = []
+
+        # When is personal folder, we need to ensure that all images are images
+        if check_img is True:
+            for img in images_list:
+                ensure_is_image(img)
 
         for i in range(0, len(images_list)):
             if check_img is True and img_is_too_small(open(images_list[i], 'rb').read()):
@@ -57,32 +61,21 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
                 for logger in loggers:
                     logger.log("[Info][PDF] Img too small, skipped: {}".format(images_list[i]))
                 continue
-
-            if "pdf" in images_list[i]:
-                continue
-
             if imghdr.what(images_list[i]) is None:
                 for logger in loggers:
                     logger.log("[Info][PDF] Img corrupted")
                 info_name = "[has_corrupted_images]"
-                images_list[i] = path.join(".", "corrupted_picture.jpg")
+                images_list[i] = os.path.join(Path(__file__).parent, "corrupted_picture.jpg")
 
         # Remove small img
         [images_list.pop(x) for x in img_to_remove]
 
-        # When is personal folder, we need to ensure that all images are images
-        if check_img is True:
-            for img in images_list:
-                ensure_is_image(img)
-
         pdf_content = img2pdf.convert(images_list)
-        pdf_path = path.join(episode_dir, f"{info_name}{file_name}.pdf")
+        pdf_path = os.path.join(episode_dir, f"{info_name}{file_name}.pdf")
 
-        if path.exists(pdf_path):
+        if os.path.exists(pdf_path):
             os.remove(pdf_path)
 
-        for logger in loggers:
-            logger.log(f"[Info][PDF] {pdf_path}")
         file = open(pdf_path, "wb")
         file.write(pdf_content)
         file.close()
@@ -110,7 +103,7 @@ def ensure_is_image(img_path: str, alternative_file_name: Optional[str] = None) 
 
     img = Image.open(img_path)
     rgb_img = img.convert('RGB')
-    rgb_img.save(path.join(file_path, alternative_file_name if alternative_file_name is not None else file_name))
+    rgb_img.save(os.path.join(file_path, alternative_file_name if alternative_file_name is not None else file_name))
 
 
 def create_directory(directory_path: str) -> None:
