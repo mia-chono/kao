@@ -17,7 +17,7 @@ options:
                         Said supported websites (default: False)
 ```
 
-## Sites Supported
+## Supported Sites
 > last update 2022.02.16
 * Manga18.club
 * Manhuascan
@@ -27,52 +27,53 @@ options:
 > *information*: you can download again a same scan with force parameter
 
 ## Personal folders
-  > last update 2022.04.12  
-  We now have the possibility to convert downloaded pictures to pdf!    
-  > last update 2022.08.07   
-  fix image conversion to pdf. Now we ensure image format.   
+* update 2022.08.07  
+Fix image conversion to pdf. Now we ensure image format.   
+* 
+* update 2022.04.12  
+We now have the possibility to convert downloaded pictures to pdf!
 
 ### Example 1: Folder with image
-  example:
-  ```
-  /path/to/manga/chap-01
-   |_ 01.png
-   |_ 02.png
-   |_ 03.jpg
-  ```
+example:
+```
+/path/to/manga/chap-01
+ |_ 01.png
+ |_ 02.png
+ |_ 03.jpg
+```
 
-  execute the next line `py __main__.py -l /path/to/manga/chap-01`, it will create inside the same folder a new pdf file with the parent folder name -> `chap-01.pdf`
+execute the next line `py __main__.py -l /path/to/manga/chap-01`, it will create inside the same folder a new pdf file with the parent folder name -> `chap-01.pdf`
 
 ### Example 2: Folder with subfolders 
-  We can also give a path to a folder containing several folders:
-  example:
-  ```
-  /path/to/manga/
-    |_ chap-01/
-       |_ 01.png
-       |_ 02.png
-       |_ 03.jpg
-    |_ chap-02/
-       |_ 01.jpg
-       |_ 02.jpg
-       |_ 03.jpg
-    |_ chap-03/
-       |_ 01.jpg
-       |_ 02.jpg
-       |_ 03.jpg
-  ```
+We can also give a path to a folder containing several folders:
+example:
+```
+/path/to/manga/
+  |_ chap-01/
+     |_ 01.png
+     |_ 02.png
+     |_ 03.jpg
+  |_ chap-02/
+     |_ 01.jpg
+     |_ 02.jpg
+     |_ 03.jpg
+  |_ chap-03/
+     |_ 01.jpg
+     |_ 02.jpg
+     |_ 03.jpg
+```
 
-  The script will creates a pdf inside each sub-folders
+The script will create a pdf inside each sub-folders
   
 ### Errors messages
-  After the next log => `[Info][PDF] creating`    
-  if you have the following message :   
-    Image contains an alpha channel which will be stored as a separate soft mask (/SMask) image in PDF.
+After the next log => `[Info][PDF] creating`    
+If you have the following message :   
+> Image contains an alpha channel which will be stored as a separate soft mask (/SMask) image in PDF.
 
-  Retry with the following command:
-    `py __main__.py -kl /path/to/manga/chap-01`
+Retry with the following command:  
+  `py __main__.py -kl /path/to/manga/chap-01`
 
-  But if the problem persists...
-  One of your images has a special property... if you still want convert to PDF, you have to convert your picture to remove the mask.
-  (example jpg to jpg... yes 😂)    
-  [image converter online](https://convertio.co/image-converter/)
+But if the problem persists...  
+One of your images has a special property... if you still want convert to PDF, you have to convert your picture to remove the mask.
+(example jpg to jpg... yes 😂)    
+[image converter online](https://convertio.co/image-converter/)
