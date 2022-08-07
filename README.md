@@ -1,7 +1,7 @@
 # KAO
 ## Console Help
 ```bash
-usage: main.py [-h] [-l LINKS [LINKS ...]] [-f | --force | --no-force] [-s | --support | --no-support]
+usage: __main__.py [-h] [-l LINKS [LINKS ...]] [-f | --force | --no-force] [-s | --support | --no-support]
 
 Downloader of manwha or manga scans
 
@@ -41,7 +41,7 @@ options:
    |_ 03.jpg
   ```
 
-  execute the next line `py main.py -l /path/to/manga/chap-01`, it will create inside the same folder a new pdf file with the parent folder name -> `chap-01.pdf`
+  execute the next line `py __main__.py -l /path/to/manga/chap-01`, it will create inside the same folder a new pdf file with the parent folder name -> `chap-01.pdf`
 
 ### Example 2: Folder with subfolders 
   We can also give a path to a folder containing several folders:
@@ -70,7 +70,7 @@ options:
     Image contains an alpha channel which will be stored as a separate soft mask (/SMask) image in PDF.
 
   Retry with the following command:
-    `py main.py -kl /path/to/manga/chap-01`
+    `py __main__.py -kl /path/to/manga/chap-01`
 
   But if the problem persists...
   One of your images has a special property... if you still want convert to PDF, you have to convert your picture to remove the mask.
