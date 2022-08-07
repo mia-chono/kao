@@ -1,15 +1,15 @@
 import os
 import argparse
 
-from downloaders.Chapter import Chapter
-from downloaders.Downloader import Downloader
-from downloaders.Manga18Downloader import Manga18Downloader
-from downloaders.ManhuascanDownloader import ManhuascanDownloader
-from downloaders.PersonalDownloander import PersonalDownloader
-from downloaders.ReaperScansDownloader import ReaperScansDownloader
-from downloaders.WebtoonDownloader import WebtoonDownloader
-from loggers.ConsoleLogger import ConsoleLogger
-from loggers.FileLogger import FileLogger
+from kao import Chapter
+from kao import Downloader
+from kao import Manga18Downloader
+from kao import ManhuascanDownloader
+from kao import PersonalDownloader
+from kao import ReaperScansDownloader
+from kao import WebtoonDownloader
+from kao import ConsoleLogger
+from kao import FileLogger
 
 if __name__ != "__main__":
     print("not executed by main")
@@ -29,20 +29,20 @@ list_downloaders: [Downloader] = [
 ]
 
 
-def download_series(series_to_download: list[str], force_re_dl: bool) -> Chapter:
+def download_series(series_to_download: list[str], force_re_dl: bool, keep_img: bool) -> Chapter:
     for obj in series_to_download:
         for downloader in list_downloaders:
             if downloader.platform == obj.get("platform"):
-                series = downloader.download_series(obj.get("link"), force_re_dl)
+                series = downloader.download_series(obj.get("link"), force_re_dl, keep_img)
                 for chapter in series.get_chapters():
                     yield chapter
 
 
-def download_chapters(chapter_to_download: list[str], force_re_dl: bool) -> Chapter:
+def download_chapters(chapter_to_download: list[str], force_re_dl: bool, keep_img: bool) -> Chapter:
     for downloader in list_downloaders:
         for obj in chapter_to_download:
             if downloader.platform == obj.get("platform"):
-                yield downloader.download_chapter(obj.get("link"), force_re_dl)
+                yield downloader.download_chapter(obj.get("link"), force_re_dl, keep_img)
 
 
 def get_series_and_chapters_links(links: list[str]) -> tuple[list[str], list[str]]:
@@ -73,12 +73,12 @@ def get_series_and_chapters_links(links: list[str]) -> tuple[list[str], list[str
     return series_to_download, chapters_to_download
 
 
-def download_all_chapters(series_to_download: list[str], chapters_to_download: list[str], force_re_dl: bool) -> list[str]:
+def download_all_chapters(series_to_download: list[str], chapters_to_download: list[str], force_re_dl: bool, keep_img: bool) -> list[str]:
     chapters = []
-    for chapter in download_chapters(chapters_to_download, force_re_dl):
+    for chapter in download_chapters(chapters_to_download, force_re_dl, keep_img):
         chapters.append(chapter)
 
-    for chapter in download_series(series_to_download, force_re_dl):
+    for chapter in download_series(series_to_download, force_re_dl, keep_img):
         chapters.append(chapter)
 
     return chapters
@@ -91,6 +91,12 @@ if __name__ == '__main__':
                         nargs="+",
                         dest="links",
                         help="Give chapters or series links")
+    parser.add_argument("-k",
+                        "--keep-img",
+                        dest="keep_img",
+                        help="If you want keep all images",
+                        action=argparse.BooleanOptionalAction,
+                        default=False)
     parser.add_argument("-f",
                         "--force",
                         dest="force_re_dl",
@@ -117,6 +123,6 @@ if __name__ == '__main__':
             links[index] = link[:-1]
 
     series_links, chapters_links = get_series_and_chapters_links(links)
-    download_all_chapters(series_links, chapters_links, args.force_re_dl)
+    download_all_chapters(series_links, chapters_links, args.force_re_dl, args.keep_img)
     for logger in loggers:
         logger.log("[Success] downloads completed")

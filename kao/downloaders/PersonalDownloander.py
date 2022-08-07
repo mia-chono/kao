@@ -1,9 +1,9 @@
 import os
 import validators
 
-import utils
-from downloaders.Chapter import Chapter
-from downloaders.Downloader import Downloader
+from kao import utils
+from .Chapter import Chapter
+from .Downloader import Downloader
 
 
 class PersonalDownloader(Downloader):
@@ -24,18 +24,18 @@ class PersonalDownloader(Downloader):
             return False
         return utils.folder_contains_files([os.path.join(link, p) for p in os.listdir(link)])
 
-    def download_series(self, link: str, force_re_dl: bool = False):
+    def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
         series_title = link[link.rfind(os.sep) + 1:]
         series = self.generate_series(series_title, link)
         folders = [os.path.join(link, p) for p in os.listdir(link)]
 
         for folder in folders:
             series.add_chapter_link(folder)
-            series.add_chapter(self.download_chapter(folder))
+            series.add_chapter(self.download_chapter(folder, force_re_dl, keep_img))
 
         return series
 
-    def download_chapter(self, link: str, force_re_dl: bool = False):
+    def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
         path = os.path.abspath(os.path.join(link, os.pardir))
         series_name = path[path.rfind(os.sep) + 1:]
         chap_name = link[link.rfind(os.sep) + 1:]
@@ -49,7 +49,7 @@ class PersonalDownloader(Downloader):
         for logger in self.loggers:
             logger.log("[Info][{}][Chapter] '{}': Creating pdf".format(self.platform, chapter.get_full_name()))
 
-        pdf_path = utils.convert_to_pdf(link, chapter.get_full_name(), self.loggers)
+        pdf_path = utils.convert_to_pdf(link, chapter.get_name(), self.loggers, True)
         chapter.set_pdf_path(pdf_path)
 
         for logger in self.loggers:

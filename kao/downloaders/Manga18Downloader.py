@@ -1,7 +1,7 @@
 import base64
 import re
 
-from downloaders.Downloader import Downloader
+from .Downloader import Downloader
 
 
 class Manga18Downloader(Downloader):
@@ -35,7 +35,7 @@ class Manga18Downloader(Downloader):
 
         return pictures_links
 
-    def download_series(self, link: str):
+    def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
         if link[len(link) - 1] != "/":
             link += "/"
 
@@ -53,17 +53,17 @@ class Manga18Downloader(Downloader):
             series.add_chapter_link("https://manga18.club" + chapter_tags.find("a").attrs["href"])
         series.get_chapters_links().reverse()
 
-        series = self._download_chapters_from_series(series)
+        series = self._download_chapters_from_series(series, force_re_dl, keep_img)
 
         for logger in self.loggers:
             logger.log("[Info][{}][series] '{}': completed".format(self.platform, series.get_name()))
 
         return series
 
-    def download_chapter(self, link: str, force_re_dl: bool = False):
+    def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
         soup, dom = self._get_page_content(link)
 
         series_title = soup.find('div', {'class': 'story_name'}).find('h1').text
         series_chapter = soup.find('div', {'class': 'chapter_name'}).find('span').text
 
-        return self._download_chapter_files(dom, series_title, series_chapter, 'https://manga18.club', force_re_dl)
+        return self._download_chapter_files(dom, series_title, series_chapter, 'https://manga18.club', force_re_dl, keep_img)

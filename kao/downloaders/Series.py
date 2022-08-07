@@ -1,6 +1,6 @@
 from typing import Optional
 
-from downloaders.Chapter import Chapter
+from .Chapter import Chapter
 
 
 class Series:

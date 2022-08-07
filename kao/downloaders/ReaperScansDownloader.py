@@ -1,6 +1,6 @@
 import re
 
-from downloaders.Downloader import Downloader
+from .Downloader import Downloader
 
 
 class ReaperScansDownloader(Downloader):
@@ -25,7 +25,7 @@ class ReaperScansDownloader(Downloader):
 
         return pictures_links
 
-    def download_series(self, link: str, force_re_dl: bool = False):
+    def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
         if link[len(link) - 1] != "/":
             link += "/"
 
@@ -43,17 +43,17 @@ class ReaperScansDownloader(Downloader):
             series.add_chapter_link(chapter_tag.find("a").attrs["href"])
         series.get_chapters_links().reverse()
 
-        series = self._download_chapters_from_series(series, force_re_dl)
+        series = self._download_chapters_from_series(series, force_re_dl, keep_img)
 
         for logger in self.loggers:
             logger.log("[Info][{}][series] '{}': completed".format(self.platform, series.get_name()))
 
         return series
 
-    def download_chapter(self, link: str, force_re_dl: bool = False):
+    def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
         soup, dom = self._get_page_content(link)
 
         series_title = dom.xpath("/html/body/div[2]/div[2]/div[1]/div/article/div[1]/div/a")[0].text
         series_chapter = soup.find("div", {"class": "daw chpnw"}).text.rstrip()
 
-        return self._download_chapter_files(dom, series_title, series_chapter, 'http://reaperscans.fr/', force_re_dl)
+        return self._download_chapter_files(dom, series_title, series_chapter, 'http://reaperscans.fr/', force_re_dl, keep_img)

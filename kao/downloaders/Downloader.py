@@ -7,14 +7,14 @@ from os import path
 from typing import Optional
 
 import cloudscraper
-from PIL import ImageFile, Image
+from PIL import Image
 from bs4 import BeautifulSoup
 from lxml import etree
 
-import utils
-from downloaders.Chapter import Chapter
-from downloaders.Series import Series
-from loggers.Logger import Logger
+from .. import utils
+from .Chapter import Chapter
+from .Series import Series
+from ..loggers import Logger
 
 
 class Downloader:
@@ -56,10 +56,7 @@ class Downloader:
 
     @staticmethod
     def _img_is_too_small(img_content: bytes, min_height: int = 10):
-        img_parser = ImageFile.Parser()
-        img_parser.feed(img_content)
-        width, height = img_parser.image.size
-        return height < min_height
+        return utils.img_is_too_small(img_content, min_height)
 
     @staticmethod
     def _extract_pictures_links_from_webpage(dom: etree._Element) -> list[str]:
@@ -97,7 +94,7 @@ class Downloader:
         dom = etree.HTML(str(soup))
         return soup, dom
 
-    def download_series(self, link: str, force_re_dl: bool = False) -> Series:
+    def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False) -> Series:
         raise "Not Implemented"
 
     def generate_series(self, series_title: str, link: str) -> Series:
@@ -150,11 +147,11 @@ class Downloader:
             retry = True
         return series_to_download
 
-    def download_chapter(self, link: str, force_re_dl: bool = False) -> Chapter:
+    def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False) -> Chapter:
         raise "Not Implemented"
 
     def _download_chapter_files(self, dom: etree._Element, series_title: str, series_chapter: str, referer: str,
-                                force_re_dl: bool = False) -> Chapter:
+                                force_re_dl: bool = False, keep_img: bool = False) -> Chapter:
         series_name = utils.replace_char_in_string(series_title, utils.invalid_directory_name_chars, "")
         chapter_name = utils.replace_char_in_string(series_chapter, utils.invalid_directory_name_chars, "")
 
@@ -185,12 +182,13 @@ class Downloader:
         for logger in self.loggers:
             logger.log("[Info][{}][Chapter] '{}': Creating pdf".format(self.platform, chapter.get_full_name()))
 
-        pdf_path = utils.convert_to_pdf(chapter_path, chapter.get_full_name(), self.loggers)
+        pdf_path = utils.convert_to_pdf(chapter_path, chapter.get_name(), self.loggers)
         chapter.set_pdf_path(pdf_path)
 
         for logger in self.loggers:
             logger.log("[Info][{}][Chapter] '{}': Complete".format(self.platform, chapter.get_full_name()))
 
-        self._clear_images(chapter_path)
+        if keep_img is False:
+            self._clear_images(chapter_path)
 
         return chapter

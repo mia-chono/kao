@@ -5,7 +5,9 @@ import img2pdf
 from os import path
 from typing import Optional
 
-from loggers import Logger
+from PIL import ImageFile
+
+from .loggers import Logger
 
 user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0'
 
@@ -31,7 +33,14 @@ def replace_char_in_string(string: str, list_of_char: list[str], string_replace:
     return "".join(temp_string_list)
 
 
-def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger]) -> Optional[str]:
+def img_is_too_small(img_content: bytes, min_height: int = 10):
+    img_parser = ImageFile.Parser()
+    img_parser.feed(img_content)
+    width, height = img_parser.image.size
+    return height < min_height
+
+
+def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], check_img: bool = False) -> Optional[str]:
     try:
         for logger in loggers:
             logger.log("[Info][PDF] creating")
@@ -39,14 +48,23 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger]) -> O
         images_list.sort()
         info_name = ""
 
+        img_to_remove = []
+
         for i in range(0, len(images_list)):
+            if check_img is True and img_is_too_small(open(images_list[i], 'rb').read()):
+                img_to_remove.append(i)
+                for logger in loggers:
+                    logger.log("[Info][PDF] Img too small, skipped: {}".format(images_list[i]))
+                continue
             if "pdf" in images_list[i]:
                 continue
             if imghdr.what(images_list[i]) is None:
                 for logger in loggers:
                     logger.log("[Info][PDF] Img corrupted")
                 info_name = "[has_corrupted_images]"
-                images_list[i] = path.join(".", "corrupted_picture.jpg")
+                images_list[i] = path.join("..", "corrupted_picture.jpg")
+
+        [images_list.pop(x) for x in img_to_remove]
 
         pdf_content = img2pdf.convert(images_list)
         pdf_path = path.join(episode_dir, f"{info_name}{file_name}.pdf")

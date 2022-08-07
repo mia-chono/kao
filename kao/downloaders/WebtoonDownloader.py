@@ -1,6 +1,6 @@
 import re
 
-from downloaders.Downloader import Downloader
+from .Downloader import Downloader
 
 
 class WebtoonDownloader(Downloader):
@@ -18,7 +18,7 @@ class WebtoonDownloader(Downloader):
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
         return re.search(
-            r"https?://(www\.)?webtoons\.com/\w{2}/\w+/((\w*-*)+\d*)/[a-zA-Z0-9-]+/viewer\?title_no=\d*&episode_no=\d+$",
+            r"https?://(www\.)?webtoons\.com/\w{2}/((\w*-*)+\d*)/((\w*-*)+\d*)/[a-zA-Z0-9-]+/viewer\?title_no=\d*&episode_no=\d+$",
             link) is not None
 
     @staticmethod
@@ -32,7 +32,7 @@ class WebtoonDownloader(Downloader):
 
         return pictures_links
 
-    def download_series(self, link: str, force_re_dl: bool = False):
+    def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
         for logger in self.loggers:
             logger.log("[Info][{}][Series] Get HTML content".format(self.platform))
 
@@ -53,17 +53,17 @@ class WebtoonDownloader(Downloader):
             url = f"{base_link}/ep{chap_number}/viewer?title_no={series_id}&episode_no={chap_number}"
             series.add_chapter_link(url)
 
-        series = self._download_chapters_from_series(series, force_re_dl)
+        series = self._download_chapters_from_series(series, force_re_dl, keep_img)
 
         for logger in self.loggers:
             logger.log("[Info][{}][series] '{}': completed".format(self.platform, series.get_name()))
 
         return series
 
-    def download_chapter(self, link: str, force_re_dl: bool = False):
+    def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
         soup, dom = self._get_page_content(link)
 
         series_title = dom.xpath('//*[@id="toolbar"]/div[1]/div/a')[0].text
         series_chapter = dom.xpath('//*[@id="toolbar"]/div[1]/div/h1')[0].text
 
-        return self._download_chapter_files(dom, series_title, series_chapter, 'http://www.webtoons.com', force_re_dl)
+        return self._download_chapter_files(dom, series_title, series_chapter, 'http://www.webtoons.com', force_re_dl, keep_img)
