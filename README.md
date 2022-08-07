@@ -19,7 +19,6 @@ options:
 
 ## Sites Supported
 > last update 2022.02.16
-  > last update 2022.02.16
 * Manga18.club
 * Manhuascan
 * ReaperScans
