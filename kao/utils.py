@@ -1,11 +1,13 @@
 import imghdr
+import io
 import os
 import img2pdf
 
 from os import path
+from pathlib import Path
 from typing import Optional
 
-from PIL import ImageFile
+from PIL import ImageFile, Image
 
 from .loggers import Logger
 
@@ -56,15 +58,23 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
                 for logger in loggers:
                     logger.log("[Info][PDF] Img too small, skipped: {}".format(images_list[i]))
                 continue
+
             if "pdf" in images_list[i]:
                 continue
+
             if imghdr.what(images_list[i]) is None:
                 for logger in loggers:
                     logger.log("[Info][PDF] Img corrupted")
                 info_name = "[has_corrupted_images]"
                 images_list[i] = path.join("..", "corrupted_picture.jpg")
 
+        # Remove small img
         [images_list.pop(x) for x in img_to_remove]
+
+        # When is personal folder, we need to ensure that all images are images
+        if check_img is True:
+            for img in images_list:
+                ensure_is_image(img)
 
         pdf_content = img2pdf.convert(images_list)
         pdf_path = path.join(episode_dir, f"{info_name}{file_name}.pdf")
@@ -92,3 +102,13 @@ def folder_contains_files(list_of_path: list[str]) -> bool:
         if os.path.isfile(file_name):
             return True
     return False
+
+
+def ensure_is_image(img_path: str, alternative_file_name: Optional[str] = None) -> None:
+    file_data = Path(img_path)
+    file_path = file_data.parent
+    file_name = file_data.name
+
+    img = Image.open(img_path)
+    rgb_img = img.convert('RGB')
+    rgb_img.save(path.join(file_path, alternative_file_name if alternative_file_name is not None else file_name))
