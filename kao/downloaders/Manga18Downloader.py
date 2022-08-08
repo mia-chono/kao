@@ -2,6 +2,7 @@ import base64
 import re
 
 from .Downloader import Downloader
+from .. import utils
 
 
 class Manga18Downloader(Downloader):
@@ -39,8 +40,7 @@ class Manga18Downloader(Downloader):
         if link[len(link) - 1] != "/":
             link += "/"
 
-        for logger in self.loggers:
-            logger.log("[Info][{}][Series] Get HTML content".format(self.platform))
+        utils.log(self.loggers, "[Info][{}][Series] Get HTML content".format(self.platform))
 
         soup, dom = self._get_page_content(link)
 
@@ -55,8 +55,7 @@ class Manga18Downloader(Downloader):
 
         series = self._download_chapters_from_series(series, force_re_dl, keep_img)
 
-        for logger in self.loggers:
-            logger.log("[Info][{}][series] '{}': completed".format(self.platform, series.get_name()))
+        utils.log(self.loggers, "[Info][{}][series] '{}': completed".format(self.platform, series.get_name()))
 
         return series
 
@@ -66,4 +65,5 @@ class Manga18Downloader(Downloader):
         series_title = soup.find('div', {'class': 'story_name'}).find('h1').text
         series_chapter = soup.find('div', {'class': 'chapter_name'}).find('span').text
 
-        return self._download_chapter_files(dom, series_title, series_chapter, 'https://manga18.club', force_re_dl, keep_img)
+        return self._download_chapter_files(dom, series_title, series_chapter, 'https://manga18.club', force_re_dl,
+                                            keep_img)

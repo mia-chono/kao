@@ -98,52 +98,49 @@ class Downloader:
         raise "Not Implemented"
 
     def generate_series(self, series_title: str, link: str) -> Series:
-        for logger in self.loggers:
-            logger.log("[Info][{}][Series] Creating object".format(self.platform))
+        utils.log(self.loggers, "[Info][{}][Series] Creating object".format(self.platform))
 
         series = Series(series_title, link)
         series.set_platform(self.platform)
 
-        for logger in self.loggers:
-            logger.log("[Info][{}][series] Getting chapters' links from '{}'".format(self.platform, series.get_name()))
+        utils.log(self.loggers,
+                  "[Info][{}][series] Getting chapters' links from '{}'".format(self.platform, series.get_name()))
 
         return series
 
-    def _download_chapters_from_series(self, series_to_download: Series, force_re_dl: bool) -> Series:
+    def _download_chapters_from_series(self, series_to_download: Series, force_re_dl: bool = False,
+                                       keep_img: bool = False) -> Series:
         retry_download = 0
         total_chapters = len(series_to_download.get_chapters_links())
         retry = True
-        for logger in self.loggers:
-            logger.log("[Info][{}][Series] Start downloading {} chaps from '{}'".format(self.platform, total_chapters,
-                                                                                        series_to_download.name))
+        utils.log(self.loggers,
+                  "[Info][{}][Series] Start downloading {} chaps from '{}'".format(self.platform, total_chapters,
+                                                                                   series_to_download.name))
         for index in range(0, total_chapters):
             while retry:
                 try:
-                    for logger in self.loggers:
-                        logger.log(
-                            "[Info][{}][Series] Get Chapter {} / {}\t(retry {})".format(self.platform, index + 1,
-                                                                                        total_chapters, retry_download))
+                    utils.log(self.loggers,
+                              "[Info][{}][Series] Get Chapter {} / {}\t(retry {})".format(self.platform, index + 1,
+                                                                                          total_chapters,
+                                                                                          retry_download))
                     if retry_download > 3:
                         retry_download = 0
-                        for logger in self.loggers:
-                            logger.log(
-                                "[Error][{}][Series][Download] '{}' => <{}>".format(self.platform,
-                                                                                    series_to_download.name,
-                                                                                    series_to_download.get_chapter_link(
-                                                                                        index)))
+                        utils.log(self.loggers, "[Error][{}][Series][Download] '{}' => <{}>".format(self.platform,
+                                                                                                    series_to_download.name,
+                                                                                                    series_to_download.get_chapter_link(
+                                                                                                        index)))
                         retry = False
                         continue
 
-                    chapter = self.download_chapter(series_to_download.get_chapter_link(index), force_re_dl)
+                    chapter = self.download_chapter(series_to_download.get_chapter_link(index), force_re_dl, keep_img)
                     series_to_download.add_chapter(chapter)
                     time.sleep(1.5)
                     retry = False
                 except Exception as e:
                     retry_download += 1
-                    for logger in self.loggers:
-                        logger.log("[Error][{}][Series][Download][Exception] <{}> : {}".format(self.platform,
-                                                                                               series_to_download.get_chapter_link(
-                                                                                                   index), e))
+                    utils.log(self.loggers, "[Error][{}][Series][Download][Exception] <{}> : {}".format(self.platform,
+                                                                                                        series_to_download.get_chapter_link(
+                                                                                                            index), e))
             retry = True
         return series_to_download
 
@@ -162,31 +159,28 @@ class Downloader:
         pdf_path = self._pdf_exists(chapter_path, chapter.get_full_name())
 
         if pdf_path is None or force_re_dl is True:
-            for logger in self.loggers:
-                logger.log("[Info][{}][Chapter] Creating structure...".format(self.platform))
+            utils.log(self.loggers, "[Info][{}][Chapter] Creating structure...".format(self.platform))
 
             self._create_skeleton(chapter_path)
         else:
-            for logger in self.loggers:
-                logger.log("[Info][{}][Chapter] '{}': PDF exists".format(self.platform, chapter.get_full_name()))
+            utils.log(self.loggers,
+                      "[Info][{}][Chapter] '{}': PDF exists".format(self.platform, chapter.get_full_name()))
             chapter.set_pdf_path(pdf_path)
             return chapter
 
-        for logger in self.loggers:
-            logger.log("[Info][{}][Chapter] Downloading pictures...".format(self.platform, chapter.get_full_name()))
+        utils.log(self.loggers,
+                  "[Info][{}][Chapter] Downloading pictures...".format(self.platform, chapter.get_full_name()))
 
         pictures_links = self._extract_pictures_links_from_webpage(dom)
 
         self._download_pictures(chapter_path, pictures_links, referer)
 
-        for logger in self.loggers:
-            logger.log("[Info][{}][Chapter] '{}': Creating pdf".format(self.platform, chapter.get_full_name()))
+        utils.log(self.loggers, "[Info][{}][Chapter] '{}': Creating pdf".format(self.platform, chapter.get_full_name()))
 
         pdf_path = utils.convert_to_pdf(chapter_path, chapter.get_name(), self.loggers)
         chapter.set_pdf_path(pdf_path)
 
-        for logger in self.loggers:
-            logger.log("[Info][{}][Chapter] '{}': Complete".format(self.platform, chapter.get_full_name()))
+        utils.log(self.loggers, "[Info][{}][Chapter] '{}': Complete".format(self.platform, chapter.get_full_name()))
 
         if keep_img is False:
             self._clear_images(chapter_path)
