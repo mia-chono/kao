@@ -27,9 +27,10 @@ class PersonalDownloader(Downloader):
     def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
         series_title = link[link.rfind(os.sep) + 1:]
         series = self.generate_series(series_title, link)
-        folders = [os.path.join(link, p) for p in os.listdir(link)]
 
-        for folder in folders:
+        series_folders = utils.find_all_sub_folders(link)
+
+        for folder in series_folders:
             series.add_chapter_link(folder)
             series.add_chapter(self.download_chapter(folder, force_re_dl, keep_img))
 
@@ -46,13 +47,11 @@ class PersonalDownloader(Downloader):
             chap_name = "unknown chap"
         chapter = Chapter(series_name, chap_name, self.platform)
 
-        for logger in self.loggers:
-            logger.log("[Info][{}][Chapter] '{}': Creating pdf".format(self.platform, chapter.get_full_name()))
+        utils.log(self.loggers, "[Info][{}][Chapter] '{}': Creating pdf".format(self.platform, chapter.get_full_name()))
 
         pdf_path = utils.convert_to_pdf(link, chapter.get_name(), self.loggers, True)
         chapter.set_pdf_path(pdf_path)
 
-        for logger in self.loggers:
-            logger.log("[Info][{}][Chapter] '{}': Complete".format(self.platform, chapter.get_full_name()))
+        utils.log(self.loggers, "[Info][{}][Chapter] '{}': Complete".format(self.platform, chapter.get_full_name()))
 
         return chapter

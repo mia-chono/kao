@@ -24,6 +24,11 @@ invalid_directory_name_chars = [
 ]
 
 
+def log(loggers: list[Logger], message: str) -> None:
+    for logger in loggers:
+        logger.log(message)
+
+
 def replace_char_in_string(string: str, list_of_char: list[str], string_replace: str) -> str:
     temp_string_list = list(string)
     for i in range(0, len(string)):
@@ -40,36 +45,41 @@ def img_is_too_small(img_content: bytes, min_height: int = 10):
     return height < min_height
 
 
-def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], check_img: bool = False) -> Optional[str]:
+def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], check_img: bool = False,
+                   minimal_logs: bool = True) -> Optional[str]:
     try:
-        for logger in loggers:
-            logger.log("[Info][PDF] creating")
-        images_list = [os.path.join(episode_dir, element) for element in os.listdir(episode_dir) if not element.endswith(".pdf")]
-        images_list.sort()
-        info_name = ""
+        if not minimal_logs:
+            log(loggers, "[Info][PDF] creating")
 
+        images_list = []
+        for element in os.listdir(episode_dir):
+            if os.path.join(episode_dir, element) is not None:
+                images_list.append(os.path.join(episode_dir, element))
+        images_list.sort()
+
+        info_name = ""
         img_to_remove = []
 
         # When is personal folder, we need to ensure that all images are images
         if check_img is True:
             for img in images_list:
-                ensure_is_image(img)
+                if imghdr.what(img) is not None:
+                    ensure_is_image(img)
 
         for i in range(0, len(images_list)):
             if check_img is True and img_is_too_small(open(images_list[i], 'rb').read()):
                 img_to_remove.append(i)
-                for logger in loggers:
-                    logger.log("[Info][PDF] Img too small, skipped: {}".format(images_list[i]))
+                if not minimal_logs:
+                    log(loggers, "[Info][PDF] Img too small, skipped: {}".format(images_list[i]))
                 continue
             if imghdr.what(images_list[i]) is None:
-                for logger in loggers:
-                    logger.log("[Info][PDF] Img corrupted")
+                if not minimal_logs:
+                    log(loggers, "[Info][PDF] Img corrupted")
                 info_name = "[has_corrupted_images]"
                 images_list[i] = os.path.join(Path(__file__).parent, "corrupted_picture.jpg")
 
         # Remove small img
         [images_list.pop(x) for x in img_to_remove]
-
         pdf_content = img2pdf.convert(images_list)
         pdf_path = os.path.join(episode_dir, f"{info_name}{file_name}.pdf")
 
@@ -80,12 +90,12 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
         file.write(pdf_content)
         file.close()
 
-        for logger in loggers:
-            logger.log("[Info][PDF] created")
+        if not minimal_logs:
+            log(loggers, "[Info][PDF] created")
+
         return pdf_path
     except Exception as e:
-        for logger in loggers:
-            logger.log("[Error][PDF] {error}".format(error=e))
+        log(loggers, "[Error][PDF] {error}".format(error=e))
         return
 
 
@@ -112,19 +122,43 @@ def create_directory(directory_path: str) -> None:
 
 
 def move_pdf_files_from_folder(folder_path: str, destination_path: str, loggers: list[Logger]) -> None:
-    for logger in loggers:
-        logger.log("[Info] moving all pdf files from {} to {}".format(folder_path, destination_path))
+    log(loggers, "[Info] moving all pdf files from '{}' to '{}'".format(folder_path, destination_path))
 
     # Move all pdf files from folder_path to destination_path by series name
     for root, dirs, files in os.walk(folder_path):
         for file in files:
+            if "pdf" in root:
+                continue
             folder_path = Path(root).parent
             folder_name = Path(folder_path).name
-            if folder_name == "pdf":
-                continue
-            elif file.endswith(".pdf"):
+            if file.endswith(".pdf"):
                 create_directory(os.path.join(destination_path, folder_name))
                 shutil.move(os.path.join(root, file), os.path.join(destination_path, folder_name, file))
 
-    for logger in loggers:
-        logger.log("[Info] all pdf files moved")
+    log(loggers, "[Info] all pdf files moved")
+
+
+def find_images_in_tree(folder_path: str) -> list[str]:
+    images_list = []
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            if imghdr.what(file) is not None:
+                images_list.append(os.path.join(root, file))
+
+    return images_list
+
+
+def find_all_sub_folders(folder_path: str) -> list[str]:
+    sub_folders = []
+    for root, dirs, files in os.walk(folder_path):
+        if "pdf" in root:
+            # print("[Info] Skipped folder: {}".format(root))
+            continue
+        for file in files:
+            file_path = os.path.join(root, file)
+            if imghdr.what(file_path) is not None:
+                dir_path = str(Path(file_path).parent.absolute())
+                if dir_path not in sub_folders:
+                    sub_folders.append(dir_path)
+
+    return sub_folders
