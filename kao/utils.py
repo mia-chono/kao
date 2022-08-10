@@ -64,20 +64,21 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
         # When is personal folder, we need to ensure that all images are images
         if check_img is True:
             for img in images_list:
-                if imghdr.what(img) is not None:
+                if imghdr.what(img) is not None or 'image/jpeg' == mimetypes.MimeTypes().guess_type(img)[0]:
                     ensure_is_image(img)
+            images_list = list(filter(lambda elem: imghdr.what(elem) is not None, images_list))
 
         for i in range(0, len(images_list)):
             if check_img is True and img_is_too_small(open(images_list[i], 'rb').read()):
                 img_to_remove.append(i)
-                if not minimal_logs:
-                    log(loggers, "[Info][PDF] Img too small, skipped: {}".format(images_list[i]))
+                if full_logs:
+                    log(loggers, '[Info][PDF][Skip] Img too small, skipped: {}'.format(images_list[i]))
                 continue
             if imghdr.what(images_list[i]) is None:
-                if not minimal_logs:
-                    log(loggers, "[Info][PDF] Img corrupted")
-                info_name = "[has_corrupted_images]"
-                images_list[i] = os.path.join(Path(__file__).parent, "corrupted_picture.jpg")
+                if full_logs:
+                    log(loggers, '[Info][PDF] Img corrupted')
+                info_name = '[has_corrupted_images]'
+                images_list[i] = os.path.join(Path(__file__).parent, 'corrupted_picture.jpg')
 
         # Remove small img
         [images_list.pop(x) for x in img_to_remove]
@@ -91,8 +92,8 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
         file.write(pdf_content)
         file.close()
 
-        if not minimal_logs:
-            log(loggers, "[Info][PDF] created")
+        if full_logs:
+            log(loggers, '[Info][PDF] created')
 
         return pdf_path
     except Exception as e:

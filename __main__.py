@@ -1,5 +1,6 @@
 import os
 import argparse
+import sys
 from typing import Iterator
 
 import validators
@@ -19,6 +20,7 @@ if __name__ != "__main__":
     print("not executed by main")
     exit(0)
 
+full_logs = False
 base_dir = os.path.join(".", "downloads")
 loggers = [
     ConsoleLogger(),
@@ -33,20 +35,22 @@ list_downloaders: [Downloader] = [
 ]
 
 
-def download_series(series_to_download: list[dict[str, str]], force_re_dl: bool, keep_img: bool) -> Iterator[Chapter]:
+def download_series(series_to_download: list[dict[str, str]], force_re_dl: bool, keep_img: bool,
+                    full_logs: bool = False) -> Iterator[Chapter]:
     for obj in series_to_download:
         for downloader in list_downloaders:
             if downloader.platform == obj.get("platform"):
-                series = downloader.download_series(obj.get("link"), force_re_dl, keep_img)
+                series = downloader.download_series(obj.get("link"), force_re_dl, keep_img, full_logs)
                 for chapter in series.get_chapters():
                     yield chapter
 
 
-def download_chapters(chapter_to_download: list[dict[str, str]], force_re_dl: bool, keep_img: bool) -> Iterator[Chapter]:
+def download_chapters(chapter_to_download: list[dict[str, str]], force_re_dl: bool, keep_img: bool,
+                      full_logs: bool = False) -> Iterator[Chapter]:
     for downloader in list_downloaders:
         for obj in chapter_to_download:
             if downloader.platform == obj.get("platform"):
-                yield downloader.download_chapter(obj.get("link"), force_re_dl, keep_img)
+                yield downloader.download_chapter(obj.get("link"), force_re_dl, keep_img, full_logs)
 
 
 def get_series_and_chapters_from_links(links: list[str]) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
@@ -78,26 +82,34 @@ def get_series_and_chapters_from_links(links: list[str]) -> tuple[list[dict[str,
 
 
 def download_all_chapters(series_to_download: list[dict[str, str]], chapters_to_download: list[dict[str, str]],
-                          force_re_dl: bool, keep_img: bool) -> list[Chapter]:
+                          force_re_dl: bool, keep_img: bool, full_logs: bool = False) -> list[Chapter]:
     chapters = []
-    for chapter in download_chapters(chapters_to_download, force_re_dl, keep_img):
+    for chapter in download_series(series_to_download, force_re_dl, keep_img, full_logs):
         chapters.append(chapter)
 
-    for chapter in download_series(series_to_download, force_re_dl, keep_img):
+    for chapter in download_chapters(chapters_to_download, force_re_dl, keep_img, full_logs):
         chapters.append(chapter)
 
     return chapters
 
 
-def download_links(links_to_dl: list[str], force_re_dl: bool, keep_img: bool) -> None:
+def download_links(links_to_dl: list[str], force_re_dl: bool, keep_img: bool, full_logs: bool = False) -> None:
     series_links, chapters_links = get_series_and_chapters_from_links(links_to_dl)
-    download_all_chapters(series_links, chapters_links, force_re_dl, keep_img)
+    download_all_chapters(series_links, chapters_links, force_re_dl, keep_img, full_logs)
     for logger in loggers:
         logger.log("[Success] downloads completed")
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Downloader of manwha or manga scans')
+
+    # hidden argument
+    parser.add_argument("--log",
+                        dest="log",
+                        help=argparse.SUPPRESS,
+                        action="store_true",
+                        default=False)
+
     parser.add_argument("-l",
                         "--links",
                         nargs="+",
@@ -151,7 +163,7 @@ if __name__ == '__main__':
         for index, tmp_link in enumerate(links_cli):
             if tmp_link[-1] == '"':
                 links_cli[index] = tmp_link[:-1]
-        download_links(links_cli, args.force_re_dl, args.keep_img)
+        download_links(links_cli, args.force_re_dl, args.keep_img, args.log)
 
     if args.read_file is not False:
         file_with_links = os.path.abspath(
@@ -160,7 +172,7 @@ if __name__ == '__main__':
         with open(file_with_links) as f:
             lines = [line.rstrip() for line in f]
 
-        download_links(lines, args.force_re_dl, args.keep_img)
+        download_links(lines, args.force_re_dl, args.keep_img, args.log)
 
     if args.move_pdf is not False:
         if args.move_pdf is not None and validators.url(args.move_pdf):
@@ -170,4 +182,3 @@ if __name__ == '__main__':
         destination_dir = os.path.join(base_path, "pdf")
 
         utils.move_pdf_files_from_folder(base_path, destination_dir, loggers)
-

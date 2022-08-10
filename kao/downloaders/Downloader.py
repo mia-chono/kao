@@ -71,8 +71,10 @@ class Downloader:
     def _set_cookies(self, cookies):
         self.cookies = cookies
 
-    def _download_pictures(self, chapter_path: str, pictures_links: list[str], referer: str):
+    def _download_pictures(self, chapter_path: str, pictures_links: list[str], referer: str,
+                           full_logs: bool = False) -> None:
         counter = 1
+        total_pictures = len(pictures_links)
         for link in pictures_links:
             headers = {
                 'User-Agent': utils.user_agent,
@@ -80,12 +82,16 @@ class Downloader:
             }
             img_response = self.scraper.get(link, headers=headers, cookies=self.cookies)
             if self._img_is_too_small(img_response.content):
+                if full_logs:
+                    utils.log(self.loggers,
+                              "[Info][{}][Chapter][Download] Image {} from {} is too small".format(self.platform,
+                                                                                                   counter,
+                                                                                                   os.path.basename(
+                                                                                                       chapter_path)))
                 continue
             image_bytes = io.BytesIO(img_response.content)
-            image = Image.open(image_bytes)
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
-            image.save(path.join(chapter_path, str(counter).zfill(3) + ".jpg"))
+            img_path = path.join(chapter_path, str(counter).zfill(total_pictures) + ".jpg")
+            utils.force_image_rgb(img_content=image_bytes, img_path=img_path)
             counter += 1
 
     def _get_page_content(self, link: str) -> tuple[BeautifulSoup, etree._Element]:
@@ -94,7 +100,8 @@ class Downloader:
         dom = etree.HTML(str(soup))
         return soup, dom
 
-    def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False) -> Series:
+    def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False,
+                        full_logs: bool = False) -> Series:
         raise "Not Implemented"
 
     def generate_series(self, series_title: str, link: str) -> Series:
@@ -109,7 +116,7 @@ class Downloader:
         return series
 
     def _download_chapters_from_series(self, series_to_download: Series, force_re_dl: bool = False,
-                                       keep_img: bool = False) -> Series:
+                                       keep_img: bool = False, full_logs: bool = False) -> Series:
         retry_download = 0
         total_chapters = len(series_to_download.get_chapters_links())
         retry = True
@@ -132,7 +139,8 @@ class Downloader:
                         retry = False
                         continue
 
-                    chapter = self.download_chapter(series_to_download.get_chapter_link(index), force_re_dl, keep_img)
+                    chapter = self.download_chapter(series_to_download.get_chapter_link(index), force_re_dl, keep_img,
+                                                    full_logs)
                     series_to_download.add_chapter(chapter)
                     time.sleep(1.5)
                     retry = False
@@ -144,16 +152,17 @@ class Downloader:
             retry = True
         return series_to_download
 
-    def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False) -> Chapter:
+    def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False,
+                         full_logs: bool = False) -> Chapter:
         raise "Not Implemented"
 
     def _download_chapter_files(self, dom: etree._Element, series_title: str, series_chapter: str, referer: str,
-                                force_re_dl: bool = False, keep_img: bool = False) -> Chapter:
+                                force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False) -> Chapter:
         series_name = utils.replace_char_in_string(series_title, utils.invalid_directory_name_chars, "")
         chapter_name = utils.replace_char_in_string(series_chapter, utils.invalid_directory_name_chars, "")
 
         chapter_path = path.join(self.base_dir, series_name, chapter_name)
-
+        # TODO: get parent, look in downloaded_chapters.txt, if chapter is already downloaded, return the pdf
         chapter = Chapter(series_name, chapter_name, self.platform)
 
         pdf_path = self._pdf_exists(chapter_path, chapter.get_full_name())
@@ -173,11 +182,11 @@ class Downloader:
 
         pictures_links = self._extract_pictures_links_from_webpage(dom)
 
-        self._download_pictures(chapter_path, pictures_links, referer)
+        self._download_pictures(chapter_path, pictures_links, referer, full_logs)
 
         utils.log(self.loggers, "[Info][{}][Chapter] '{}': Creating pdf".format(self.platform, chapter.get_full_name()))
 
-        pdf_path = utils.convert_to_pdf(chapter_path, chapter.get_name(), self.loggers)
+        pdf_path = utils.convert_to_pdf(chapter_path, chapter.get_name(), self.loggers, full_logs)
         chapter.set_pdf_path(pdf_path)
 
         utils.log(self.loggers, "[Info][{}][Chapter] '{}': Complete".format(self.platform, chapter.get_full_name()))

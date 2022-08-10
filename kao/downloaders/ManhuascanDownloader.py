@@ -26,7 +26,7 @@ class ManhuascanDownloader(Downloader):
 
         return pictures_links
 
-    def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
+    def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False):
         if link[len(link) - 1] != "/":
             link += "/"
 
@@ -43,17 +43,17 @@ class ManhuascanDownloader(Downloader):
             series.add_chapter_link(chapter_tags.find("a").attrs["href"])
         series.get_chapters_links().reverse()
 
-        series = self._download_chapters_from_series(series, force_re_dl, keep_img)
+        series = self._download_chapters_from_series(series, force_re_dl, keep_img, full_logs)
 
         utils.log(self.loggers, "[Info][{}][series] '{}': completed".format(self.platform, series.get_name()))
 
         return series
 
-    def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
+    def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False):
         soup, dom = self._get_page_content(link)
 
         series_title = dom.xpath("/html/body/div[2]/div[2]/div[1]/div/article/div[1]/div/a")[0].text
         series_chapter = dom.xpath("//*[@id='chapter']//option[@selected='selected']")[0].text
 
         return self._download_chapter_files(dom, series_title, series_chapter, 'https://manhuascan.us', force_re_dl,
-                                            keep_img)
+                                            keep_img, full_logs)
