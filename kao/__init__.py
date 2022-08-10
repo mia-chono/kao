@@ -1,4 +1,5 @@
 from .downloaders import Chapter
+from .downloaders import Series
 from .downloaders import Downloader
 from .downloaders import Manga18Downloader
 from .downloaders import ManhuascanDownloader
