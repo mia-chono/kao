@@ -10,6 +10,7 @@ from PIL import ImageFile, Image
 
 from .loggers import Logger
 
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0'
 
 invalid_file_name_chars = [
@@ -69,6 +70,8 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
             images_list = list(filter(lambda elem: imghdr.what(elem) is not None, images_list))
 
         for i in range(0, len(images_list)):
+            if full_logs:
+                log(loggers, '[Info][PDF][Image] {}'.format(images_list[i]))
             if check_img is True and img_is_too_small(open(images_list[i], 'rb').read()):
                 img_to_remove.append(i)
                 if full_logs:
@@ -161,7 +164,7 @@ def find_all_sub_folders(folder_path: str) -> list[str]:
             continue
         for file in files:
             file_path = os.path.join(root, file)
-            if imghdr.what(file_path) is not None:
+            if imghdr.what(file_path) is not None or 'image/jpeg' == mimetypes.MimeTypes().guess_type(file_path)[0]:
                 dir_path = str(Path(file_path).parent.absolute())
                 if dir_path not in sub_folders:
                     sub_folders.append(dir_path)
