@@ -9,6 +9,7 @@ from kao import ConsoleLogger
 from kao import Downloader
 from kao import FileLogger
 from kao import Manga18Downloader
+from kao import MangaOriginesDownloader
 from kao import ManhuascanDownloader
 from kao import PersonalDownloader
 from kao import ReaperScansDownloader
@@ -30,7 +31,8 @@ list_downloaders: [Downloader] = [
     WebtoonDownloader(base_dir, loggers),
     Manga18Downloader(base_dir, loggers),
     ManhuascanDownloader(base_dir, loggers),
-    ReaperScansDownloader(base_dir, loggers)
+    ReaperScansDownloader(base_dir, loggers),
+    MangaOriginesDownloader(base_dir, loggers),
 ]
 
 
