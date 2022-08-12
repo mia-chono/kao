@@ -4,17 +4,18 @@ from typing import Iterator
 
 import validators
 
-from kao import Chapter
+from kao import utils
 from kao import ConsoleLogger
-from kao import Downloader
 from kao import FileLogger
+from kao import Chapter
+from kao import Downloader
 from kao import Manga18Downloader
-from kao import MangaOriginesDownloader
 from kao import ManhuascanDownloader
 from kao import PersonalDownloader
 from kao import ReaperScansDownloader
 from kao import WebtoonDownloader
-from kao import utils
+from kao import MangaOriginesDownloader
+from kao import MangaOriginesXDownloader
 
 if __name__ != "__main__":
     print("not executed by main")
@@ -33,6 +34,7 @@ list_downloaders: [Downloader] = [
     ManhuascanDownloader(base_dir, loggers),
     ReaperScansDownloader(base_dir, loggers),
     MangaOriginesDownloader(base_dir, loggers),
+    MangaOriginesXDownloader(base_dir, loggers),
 ]
 
 

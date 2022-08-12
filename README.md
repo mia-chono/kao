@@ -28,7 +28,8 @@ options:
 * Manhuascan
 * ReaperScans
 * Webtoon
-* MangaOrigines
+* Manga-Origines
+* Manga-Origines-X
 
 > *information*: you can download again a same scan with force parameter
 ## Group all PDF in one directory
