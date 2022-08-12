@@ -7,13 +7,12 @@ from os import path
 from typing import Optional
 
 import cloudscraper
-from PIL import Image
 from bs4 import BeautifulSoup
 from lxml import etree
 
-from .. import utils
 from .Chapter import Chapter
 from .Series import Series
+from .. import utils
 from ..loggers import Logger
 
 
@@ -191,7 +190,7 @@ class Downloader:
 
         series_path = path.join(self.base_dir, series_name)
         chapter_path = path.join(series_path, chapter_name)
-        
+
         chapter = Chapter(series_name, chapter_name, self.platform)
 
         if self._is_chapter_already_downloaded(series_path, chapter.chapter_name) and not force_re_dl:

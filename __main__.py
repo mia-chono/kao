@@ -1,20 +1,19 @@
-import os
 import argparse
-import sys
+import os
 from typing import Iterator
 
 import validators
 
-from kao import utils
 from kao import Chapter
+from kao import ConsoleLogger
 from kao import Downloader
+from kao import FileLogger
 from kao import Manga18Downloader
 from kao import ManhuascanDownloader
 from kao import PersonalDownloader
 from kao import ReaperScansDownloader
 from kao import WebtoonDownloader
-from kao import ConsoleLogger
-from kao import FileLogger
+from kao import utils
 
 if __name__ != "__main__":
     print("not executed by main")
@@ -156,8 +155,6 @@ if __name__ == '__main__':
     if args.support:
         print("Supported websites:\n\t{}".format(", ".join([downloader.platform for downloader in list_downloaders])))
 
-    # TODO add in the folder of each manga a file "downloaded_chapters.txt" with the name of the downloaded chapters
-    #  or the link...
     if args.links:
         links_cli = args.links
         for index, tmp_link in enumerate(links_cli):
