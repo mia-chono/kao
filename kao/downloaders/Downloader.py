@@ -68,6 +68,34 @@ class Downloader:
             if not file_to_delete.lower().endswith("pdf"):
                 os.remove(file_to_delete)
 
+    @staticmethod
+    def _is_chapter_already_downloaded(series_path: str, chapter_name: str,
+                                       file_name: str = "downloaded_chapters.txt") -> bool:
+
+        file_path = path.join(series_path, file_name)
+
+        if path.exists(file_path) and path.isfile(file_path):
+            with open(file_path, "r") as f:
+                for line in f:
+                    if line.strip() == chapter_name:
+                        return True
+        return False
+
+    @staticmethod
+    def _add_chapter_to_downloaded_chapters(series_path: str, chapter_name: str,
+                                            file_name: str = "downloaded_chapters.txt") -> None:
+        file_path = path.join(series_path, file_name)
+
+        if not path.exists(series_path):
+            utils.create_directory(series_path)
+
+        if not path.exists(file_path):
+            with open(file_path, "w") as f:
+                f.write(chapter_name + "\n")
+        else:
+            with open(file_path, "a") as f:
+                f.write(chapter_name + "\n")
+
     def _set_cookies(self, cookies):
         self.cookies = cookies
 
@@ -161,22 +189,21 @@ class Downloader:
         series_name = utils.replace_char_in_string(series_title, utils.invalid_directory_name_chars, "")
         chapter_name = utils.replace_char_in_string(series_chapter, utils.invalid_directory_name_chars, "")
 
-        chapter_path = path.join(self.base_dir, series_name, chapter_name)
-        # TODO: get parent, look in downloaded_chapters.txt, if chapter is already downloaded, return the pdf
+        series_path = path.join(self.base_dir, series_name)
+        chapter_path = path.join(series_path, chapter_name)
+        
         chapter = Chapter(series_name, chapter_name, self.platform)
 
-        pdf_path = self._pdf_exists(chapter_path, chapter.get_full_name())
-
-        if pdf_path is None or force_re_dl is True:
-            utils.log(self.loggers, "[Info][{}][Chapter] Creating structure...".format(self.platform))
-
-            self._create_skeleton(chapter_path)
-        else:
+        if self._is_chapter_already_downloaded(series_path, chapter.chapter_name) and not force_re_dl:
             utils.log(self.loggers,
-                      "[Info][{}][Chapter] '{}': PDF exists".format(self.platform, chapter.get_full_name()))
+                      "[Info][{}][Chapter][Download] Chapter {} from {} is already downloaded".format(self.platform,
+                                                                                                      chapter.get_full_name(),
+                                                                                                      series_name))
+            pdf_path = self._pdf_exists(chapter_path, chapter.get_full_name())
             chapter.set_pdf_path(pdf_path)
             return chapter
 
+        self._create_skeleton(chapter_path)
         utils.log(self.loggers,
                   "[Info][{}][Chapter] Downloading pictures...".format(self.platform, chapter.get_full_name()))
 
@@ -189,6 +216,7 @@ class Downloader:
         pdf_path = utils.convert_to_pdf(chapter_path, chapter.get_name(), self.loggers, full_logs)
         chapter.set_pdf_path(pdf_path)
 
+        self._add_chapter_to_downloaded_chapters(series_path, chapter.get_name())
         utils.log(self.loggers, "[Info][{}][Chapter] '{}': Complete".format(self.platform, chapter.get_full_name()))
 
         if keep_img is False:
