@@ -4,9 +4,11 @@ import os
 import shutil
 import time
 from os import path
+from pathlib import Path
 from typing import Optional
 
 import cloudscraper
+from PIL import Image
 from bs4 import BeautifulSoup
 from lxml import etree
 
@@ -108,17 +110,25 @@ class Downloader:
                 'referer': referer
             }
             img_response = self.scraper.get(link, headers=headers, cookies=self.cookies)
-            if self._img_is_too_small(img_response.content):
-                if full_logs:
-                    utils.log(self.loggers,
-                              "[Info][{}][Chapter][Download] Image {} from {} is too small".format(self.platform,
-                                                                                                   counter,
-                                                                                                   os.path.basename(
-                                                                                                       chapter_path)))
-                continue
-            image_bytes = io.BytesIO(img_response.content)
-            img_path = path.join(chapter_path, str(counter).zfill(total_pictures) + ".jpg")
-            utils.force_image_rgb(img_content=image_bytes, img_path=img_path)
+            try:
+                if self._img_is_too_small(img_response.content):
+                    if full_logs:
+                        utils.log(self.loggers,
+                                  "[Info][{}][Chapter][Download] Image {} from {} is too small".format(self.platform,
+                                                                                                       counter,
+                                                                                                       os.path.basename(
+                                                                                                           chapter_path)))
+                    continue
+                image_bytes = io.BytesIO(img_response.content)
+                img_path = path.join(chapter_path, str(counter).zfill(len(str(total_pictures))) + ".jpg")
+                utils.force_image_rgb(img_content=image_bytes, img_path=img_path)
+            except Exception as e:
+                utils.log(self.loggers,
+                          "[Info][{}][Chapter][Download] Image {} corrupted".format(self.platform, counter))
+                corrupted_img_path = os.path.join(Path(__file__).parent.parent, 'corrupted_picture.jpg')
+                img = Image.open(corrupted_img_path)
+                img_path = path.join(chapter_path, str(counter).zfill(len(str(total_pictures))) + ".jpg")
+                img.save(img_path)  # save the corrupted image
             counter += 1
 
     def _get_page_content(self, link: str) -> tuple[BeautifulSoup, etree._Element]:
