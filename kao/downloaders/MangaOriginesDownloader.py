@@ -19,7 +19,7 @@ class MangaOriginesDownloader(Downloader):
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
         return re.search(
-            r"https?://(www\.)?mangas-origines\.fr/catalogues/(\w*-*\d*)+/chapitre-\d+/?(\?style=(list|paged))?$",
+            r"https?://(www\.)?mangas-origines\.fr/catalogues/(\w*-*\d*)+/chapitre-\d+(\w*-*\d*)+?/?(\?style=(list|paged))?$",
             link) is not None
 
     @staticmethod
@@ -63,10 +63,13 @@ class MangaOriginesDownloader(Downloader):
         return series
 
     def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False):
+        if "?style=list" not in link:
+            link += "?style=list"
+
         soup, dom = self._get_page_content(link)
 
         series_title = soup.select_one(".breadcrumb > li:nth-child(3)").text.rstrip().replace("\n", "")
         series_chapter = soup.select_one(".breadcrumb > .active").text.rstrip().replace("\n", "")
 
-        return self._download_chapter_files(dom, series_title, series_chapter, 'https://reaperscans.fr/', force_re_dl,
-                                            keep_img, full_logs)
+        return self._download_chapter_files(dom, series_title, series_chapter, 'https://mangas-origines.fr/',
+                                            force_re_dl, keep_img, full_logs)
