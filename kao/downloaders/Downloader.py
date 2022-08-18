@@ -216,7 +216,12 @@ class Downloader:
             chapter.set_pdf_path(pdf_path)
             return chapter
 
-        self._create_skeleton(chapter_path)
+        try:
+            self._create_skeleton(chapter_path)
+        except Exception as e:
+            utils.log(self.loggers, "[Error][{}][Chapter][Download] {}".format(self.platform, e))
+            raise
+
         utils.log(self.loggers,
                   "[Info][{}][Chapter] Downloading pictures...".format(self.platform, chapter.get_full_name()))
 
