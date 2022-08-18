@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Optional
 
 import cloudscraper
+import unidecode
 from PIL import Image
 from bs4 import BeautifulSoup
 from lxml import etree
@@ -197,6 +198,9 @@ class Downloader:
                                 force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False) -> Chapter:
         series_name = utils.replace_char_in_string(series_title, utils.invalid_directory_name_chars, "").strip()
         chapter_name = utils.replace_char_in_string(series_chapter, utils.invalid_directory_name_chars, "").strip()
+
+        series_name = unidecode.unidecode(series_name)
+        chapter_name = unidecode.unidecode(chapter_name)
 
         series_path = path.join(self.base_dir, series_name)
         chapter_path = path.join(series_path, chapter_name)
