@@ -17,13 +17,21 @@ invalid_file_name_chars = [
     chr(0), chr(1), chr(2), chr(3), chr(4), chr(5), chr(6), chr(7), chr(8), chr(9), chr(10), chr(11),
     chr(12), chr(13), chr(14), chr(15), chr(16), chr(17), chr(18), chr(19), chr(20), chr(21), chr(22), chr(23), chr(24),
     chr(25), chr(26), chr(27), chr(28), chr(29), chr(30), chr(31), chr(34), chr(60), chr(62), chr(124), ':', '*', '?',
-    '\\', '/', '.'
+    '\\', '/'
 ]
 invalid_directory_name_chars = [
     '|', '\0', chr(1), chr(2), chr(3), chr(4), chr(5), chr(6), chr(7), chr(8), chr(9), chr(10), chr(11),
     chr(12), chr(13), chr(14), chr(15), chr(16), chr(17), chr(18), chr(19), chr(20), chr(21), chr(22), chr(23), chr(24),
-    chr(25), chr(26), chr(27), chr(28), chr(29), chr(30), chr(31), ':', '*', '?', '\\', '/', '.'
+    chr(25), chr(26), chr(27), chr(28), chr(29), chr(30), chr(31), ':', '*', '?', '\\', '/'
 ]
+
+
+def remove_dots_end_of_file_name(file_name: str) -> str:
+    tmp_name = file_name
+    while tmp_name.endswith('.'):
+        tmp_name = tmp_name[:-1]
+
+    return tmp_name
 
 
 def log(loggers: list[Logger], message: str) -> None:

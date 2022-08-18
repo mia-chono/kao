@@ -199,8 +199,8 @@ class Downloader:
         series_name = utils.replace_char_in_string(series_title, utils.invalid_directory_name_chars, "").strip()
         chapter_name = utils.replace_char_in_string(series_chapter, utils.invalid_directory_name_chars, "").strip()
 
-        series_name = unidecode.unidecode(series_name)
-        chapter_name = unidecode.unidecode(chapter_name)
+        series_name = utils.remove_dots_end_of_file_name(unidecode.unidecode(series_name))
+        chapter_name = utils.remove_dots_end_of_file_name(unidecode.unidecode(chapter_name))
 
         series_path = path.join(self.base_dir, series_name)
         chapter_path = path.join(series_path, chapter_name)
