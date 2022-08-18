@@ -1,5 +1,6 @@
 import os
 import validators
+import unidecode
 
 from kao import utils
 from .Series import Series
@@ -43,6 +44,9 @@ class PersonalDownloader(Downloader):
         path = os.path.abspath(os.path.join(link, os.pardir))
         series_name = path[path.rfind(os.sep) + 1:]
         chap_name = link[link.rfind(os.sep) + 1:]
+
+        series_name = unidecode.unidecode(series_name)
+        chap_name = unidecode.unidecode(chap_name)
 
         if series_name is None:
             series_name = "Custom Series"
