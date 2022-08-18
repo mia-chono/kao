@@ -19,7 +19,7 @@ class ReaperScansDownloader(Downloader):
         return re.search(r"https?://(www\.)?reaperscans\.fr/series/[^/]+/chapitre-\d+/?$", link) is not None
 
     @staticmethod
-    def _extract_pictures_links_from_webpage(dom) -> list[str]:
+    def extract_pictures_links_from_webpage(dom) -> list[str]:
         img_tags = dom.xpath('//*[@class="reading-content"]//img')
 
         pictures_links = list(map(lambda img_tag: img_tag.get("src").replace("\n", ""), img_tags))

@@ -20,7 +20,7 @@ class Manga18Downloader(Downloader):
         return re.search(r"https?://(www\.)?manga18\.club/manhwa/.+/(\w+-)?\d+/?$", link) is not None
 
     @staticmethod
-    def _extract_pictures_links_from_webpage(dom) -> list[str]:
+    def extract_pictures_links_from_webpage(dom) -> list[str]:
         js_scpipt_with_pictures = dom.xpath('/html/body/div[3]/div[5]/script[1]')[0].text
 
         js_array_of_pictures = re.search(r'var slides_p_path = \[((("\w+(=?)*")+,)+)\];',

@@ -23,7 +23,7 @@ class MangaOriginesDownloader(Downloader):
             link) is not None
 
     @staticmethod
-    def _extract_pictures_links_from_webpage(dom) -> list[str]:
+    def extract_pictures_links_from_webpage(dom) -> list[str]:
         img_tags = dom.xpath('//*[@class="reading-content"]//img')
 
         pictures_links = list(map(lambda img_tag: img_tag.get("data-src").strip(), img_tags))

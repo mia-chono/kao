@@ -19,7 +19,7 @@ class ManhuascanDownloader(Downloader):
         return re.search(r"https?://(www\.)?manhuascan\.us/manga/.+/(\w+-)?\d+/?$", link) is not None
 
     @staticmethod
-    def _extract_pictures_links_from_webpage(dom) -> list[str]:
+    def extract_pictures_links_from_webpage(dom) -> list[str]:
         img_tags = dom.xpath('/html/body/div[2]/div[2]/div[1]/div/article/div[3]/div[5]/img')
 
         pictures_links = list(map(lambda img_tag: img_tag.get("src"), img_tags))

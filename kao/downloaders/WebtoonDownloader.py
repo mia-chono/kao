@@ -23,7 +23,7 @@ class WebtoonDownloader(Downloader):
             link) is not None
 
     @staticmethod
-    def _extract_pictures_links_from_webpage(dom) -> list[str]:
+    def extract_pictures_links_from_webpage(dom) -> list[str]:
         img_html_elements = dom.xpath("/html/body/div[1]/div[2]/div[3]/div[1]/div/div/img")
         pictures_links = []
         for element in img_html_elements:
@@ -59,11 +59,11 @@ class WebtoonDownloader(Downloader):
 
         return series
 
-    def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
+    def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False):
         soup, dom = self._get_page_content(link)
 
         series_title = dom.xpath('//*[@id="toolbar"]/div[1]/div/a')[0].text
         series_chapter = dom.xpath('//*[@id="toolbar"]/div[1]/div/h1')[0].text
 
         return self._download_chapter_files(dom, series_title, series_chapter, 'https://www.webtoons.com', force_re_dl,
-                                            keep_img)
+                                            keep_img, full_logs)

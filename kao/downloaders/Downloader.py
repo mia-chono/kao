@@ -61,7 +61,7 @@ class Downloader:
         return utils.img_is_too_small(img_content, min_height)
 
     @staticmethod
-    def _extract_pictures_links_from_webpage(dom: etree._Element) -> list[str]:
+    def extract_pictures_links_from_webpage(dom: etree._Element) -> list[str]:
         raise "Not Implemented"
 
     @staticmethod
@@ -220,7 +220,7 @@ class Downloader:
         utils.log(self.loggers,
                   "[Info][{}][Chapter] Downloading pictures...".format(self.platform, chapter.get_full_name()))
 
-        pictures_links = self._extract_pictures_links_from_webpage(dom)
+        pictures_links = self.extract_pictures_links_from_webpage(dom)
 
         self._download_pictures(chapter_path, pictures_links, referer, full_logs)
 
