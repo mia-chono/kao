@@ -14,12 +14,12 @@ class MangaOriginesXDownloader(Downloader):
 
     @staticmethod
     def is_a_series_link(link: str) -> bool:
-        return re.search(r"https?://(www\.)?x\.mangas-origines\.fr/oeuvre/(\w*-*\d*)*/?$", link) is not None
+        return re.search(r"https?://(www\.)?x\.mangas-origines\.fr/oeuvre/(\w*-*\d*%*)+/?$", link) is not None
 
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
         return re.search(
-            r"https?://(www\.)?x\.mangas-origines\.fr/oeuvre/(\w*-*\d*)+/chapitre-\d+/?(\?style=(list|paged))?$",
+            r"https?://(www\.)?x\.mangas-origines\.fr/oeuvre/(\w*-*\d*%*)+/chapitre-\d+/?(\?style=(list|paged))?$",
             link) is not None
 
     @staticmethod

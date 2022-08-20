@@ -13,7 +13,7 @@ class Manga18Downloader(Downloader):
 
     @staticmethod
     def is_a_series_link(link: str) -> bool:
-        return re.search(r"https?://(www\.)?manga18\.club/manhwa/((\w*-*)+\d*)/?$", link) is not None
+        return re.search(r"https?://(www\.)?manga18\.club/manhwa/((\w*-*%*)+\d*)/?$", link) is not None
 
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
