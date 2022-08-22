@@ -1,4 +1,5 @@
 import re
+import unidecode
 
 from .Downloader import Downloader
 from .. import utils
@@ -34,7 +35,7 @@ class ReaperScansDownloader(Downloader):
 
         soup, dom = self._get_page_content(link)
 
-        series_title = soup.find("div", {"class": "post-title"}).find("h1").text.rstrip().replace("\n", "")
+        series_title = unidecode.unidecode(soup.find("div", {"class": "post-title"}).find("h1").text.rstrip().replace("\n", ""))
 
         series = self.generate_series(series_title, link)
 

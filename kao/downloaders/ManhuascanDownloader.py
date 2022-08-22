@@ -1,4 +1,5 @@
 import re
+import unidecode
 
 from .Downloader import Downloader
 from .. import utils
@@ -34,7 +35,7 @@ class ManhuascanDownloader(Downloader):
 
         soup, dom = self._get_page_content(link)
 
-        series_title = dom.xpath("/html/body/div[2]/div/div[2]/article/div[1]/div[2]/div[1]/div[1]/div/h1")[0].text
+        series_title = unidecode.unidecode(dom.xpath("/html/body/div[2]/div/div[2]/article/div[1]/div[2]/div[1]/div[1]/div/h1")[0].text)
 
         series = self.generate_series(series_title, link)
 

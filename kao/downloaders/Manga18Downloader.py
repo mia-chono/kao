@@ -1,5 +1,6 @@
 import base64
 import re
+import unidecode
 
 from .Downloader import Downloader
 from .. import utils
@@ -44,7 +45,7 @@ class Manga18Downloader(Downloader):
 
         soup, dom = self._get_page_content(link)
 
-        series_title = soup.find('div', {'class': 'detail_name'}).find('h1').text
+        series_title = unidecode.unidecode(soup.find('div', {'class': 'detail_name'}).find('h1').text)
 
         series = self.generate_series(series_title, link)
 

@@ -1,4 +1,5 @@
 import re
+import unidecode
 
 from .Downloader import Downloader
 from .. import utils
@@ -44,7 +45,7 @@ class WebtoonDownloader(Downloader):
             dom.xpath("/html/body/div[1]/div[3]/div/div[2]/div[2]/div[1]/ul/li[1]/a")[0].get("href").split(
                 "&episode_no=")[1]
 
-        series_title = soup.find("h1", {"class": "subj"}).text
+        series_title = unidecode.unidecode(soup.find("h1", {"class": "subj"}).text)
 
         series = self.generate_series(series_title, link)
 

@@ -1,4 +1,5 @@
 import re
+import unidecode
 
 from bs4 import BeautifulSoup
 
@@ -47,7 +48,7 @@ class MangaOriginesDownloader(Downloader):
         soup, _ = self._get_page_content(link)
         soup_chapters = self._get_chapters_from_series(link)
 
-        series_title = soup.find("div", {"class": "post-title"}).find("h1").text.rstrip().replace("\n", "")
+        series_title = unidecode.unidecode(soup.find("div", {"class": "post-title"}).find("h1").text.rstrip().replace("\n", ""))
 
         series = self.generate_series(series_title, link)
 
