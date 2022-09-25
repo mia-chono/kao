@@ -13,11 +13,11 @@ class ReaperScansDownloader(Downloader):
 
     @staticmethod
     def is_a_series_link(link: str) -> bool:
-        return re.search(r"https?://(www\.)?reaperscans\.fr/series/[^/?]+/?$", link) is not None
+        return re.search(r"https?://(www\.)?reaperscans\.fr/series?/[^/?]+/?$", link) is not None
 
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
-        return re.search(r"https?://(www\.)?reaperscans\.fr/series/[^/]+/chapitre-\d+/?$", link) is not None
+        return re.search(r"https?://(www\.)?reaperscans\.fr/series?/[^/]+/chapitre-\d+/?$", link) is not None
 
     @staticmethod
     def extract_pictures_links_from_webpage(dom) -> list[str]:
