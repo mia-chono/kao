@@ -27,7 +27,7 @@ class MangaOriginesDownloader(Downloader):
     def extract_pictures_links_from_webpage(dom) -> list[str]:
         img_tags = dom.xpath('//*[@class="reading-content"]//img')
 
-        pictures_links = list(map(lambda img_tag: img_tag.get("data-src").strip(), img_tags))
+        pictures_links = list(map(lambda img_tag: img_tag.get("src").strip(), img_tags))
 
         return pictures_links
 

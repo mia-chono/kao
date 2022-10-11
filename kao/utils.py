@@ -48,13 +48,6 @@ def replace_char_in_string(string: str, list_of_char: list[str], string_replace:
     return ''.join(temp_string_list)
 
 
-def img_is_too_small(img_content: bytes, min_height: int = 10):
-    img_parser = ImageFile.Parser()
-    img_parser.feed(img_content)
-    width, height = img_parser.image.size
-    return height < min_height
-
-
 def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], check_img: bool = False,
                    full_logs: bool = False) -> Optional[str]:
     try:
@@ -72,18 +65,19 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
 
         # When is personal folder, we need to ensure that all images are images
         if check_img is True:
-            for img in images_list:
-                if imghdr.what(img) is not None or 'image/jpeg' == mimetypes.MimeTypes().guess_type(img)[0]:
-                    ensure_is_image(img)
-            images_list = list(filter(lambda elem: imghdr.what(elem) is not None, images_list))
+            images_list = keep_only_images_paths(images_list, full_logs)
 
         for i in range(0, len(images_list)):
+            img_is_too_large_or_small = img_is_too_small(open(images_list[i], 'rb').read()) \
+                                        or img_is_too_large(open(images_list[i], 'rb').read())
+
             if full_logs:
                 log(loggers, '[Info][PDF][Image] {}'.format(images_list[i]))
-            if check_img is True and img_is_too_small(open(images_list[i], 'rb').read()):
+
+            if check_img is True and img_is_too_large_or_small:
                 img_to_remove.append(i)
                 if full_logs:
-                    log(loggers, '[Info][PDF][Skip] Img too small, skipped: {}'.format(images_list[i]))
+                    log(loggers, '[Info][PDF][Skip] Img too large or small, skipped: {}'.format(images_list[i]))
                 continue
             if imghdr.what(images_list[i]) is None:
                 if full_logs:
@@ -91,17 +85,16 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
                 info_name = '[has_corrupted_images]'
                 images_list[i] = os.path.join(Path(__file__).parent, 'corrupted_picture.jpg')
 
-        # Remove small img
+        # Remove unwanted images
         [images_list.pop(x) for x in img_to_remove]
-        pdf_content = img2pdf.convert(images_list)
+
         pdf_path = os.path.join(episode_dir, f'{info_name}{file_name}.pdf')
 
         if os.path.exists(pdf_path):
             os.remove(pdf_path)
 
-        file = open(pdf_path, 'wb')
-        file.write(pdf_content)
-        file.close()
+        with open(pdf_path, 'wb') as f:
+            f.write(img2pdf.convert(images_list))
 
         if full_logs:
             log(loggers, '[Info][PDF] created')
@@ -119,7 +112,33 @@ def folder_contains_files(list_of_path: list[str]) -> bool:
     return False
 
 
-def ensure_is_image(img_path: str, alternative_file_name: Optional[str] = None) -> None:
+def get_img_size(img_content: bytes) -> tuple[int, int]:
+    img_parser = ImageFile.Parser()
+    img_parser.feed(img_content)
+    return img_parser.image.size
+
+
+def img_is_too_small(img_content: bytes, min_height: int = 10, min_width: int = 10) -> bool:
+    width, height = get_img_size(img_content)
+    return height < min_height or width < min_width
+
+
+def img_is_too_large(img_content: bytes, max_height: int = 144000, max_width: int = 144000) -> bool:
+    width, height = get_img_size(img_content)
+    return height > max_height or width > max_width
+
+
+def img_has_alpha_channel(img_content: bytes) -> bool:
+    img_parser = ImageFile.Parser()
+    img_parser.feed(img_content)
+    return img_parser.image.mode == 'RGBA'
+
+
+def convert_img_to_jpeg(img_path: str, alternative_file_name: Optional[str] = None) -> None:
+    if 'image/jpeg' == mimetypes.MimeTypes().guess_type(img_path)[0] and not img_has_alpha_channel(
+            open(img_path, 'rb').read()):
+        return
+
     temp_path = Path(img_path)
     file_path = os.path.join(temp_path.parent,
                              alternative_file_name if alternative_file_name is not None else temp_path.name)
@@ -130,6 +149,15 @@ def force_image_rgb(img_path: str, img_content: Optional[str] = None) -> None:
     img = Image.open(img_path if img_content is None else img_content)
     rgb_img = img.convert('RGB')
     rgb_img.save(img_path)
+
+
+def keep_only_images_paths(images_list: [str], alternative_file_name: Optional[str] = None) -> [str]:
+    images = list(filter(lambda elem: imghdr.what(elem) is not None, images_list))
+    # When is personal folder, we need to ensure that all images are images
+    for img in images_list:
+        convert_img_to_jpeg(img)
+
+    return images
 
 
 def create_directory(directory_path: str) -> None:

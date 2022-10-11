@@ -56,11 +56,7 @@ class Downloader:
             return path.join(chapter_path, f"{pdf_file_name}.pdf")
         return None
 
-    @staticmethod
-    def _img_is_too_small(img_content: bytes, min_height: int = 10):
-        return utils.img_is_too_small(img_content, min_height)
 
-    @staticmethod
     def extract_pictures_links_from_webpage(dom: etree._Element) -> list[str]:
         raise "Not Implemented"
 
@@ -105,14 +101,18 @@ class Downloader:
                            full_logs: bool = False) -> None:
         counter = 1
         total_pictures = len(pictures_links)
+        headers = {
+            'User-Agent': utils.user_agent,
+            'referer': referer
+        }
         for link in pictures_links:
-            headers = {
-                'User-Agent': utils.user_agent,
-                'referer': referer
-            }
             img_response = self.scraper.get(link, headers=headers, cookies=self.cookies)
+            img_content = img_response.content
+            img_path = path.join(chapter_path, str(counter).zfill(len(str(total_pictures))) + ".jpg")
+            img_is_too_large_or_small = utils.img_is_too_small(img_content) \
+                                        or utils.img_is_too_large(img_content)
             try:
-                if self._img_is_too_small(img_response.content):
+                if img_is_too_large_or_small:
                     if full_logs:
                         utils.log(self.loggers,
                                   "[Info][{}][Chapter][Download] Image {} from {} is too small".format(self.platform,
@@ -120,15 +120,23 @@ class Downloader:
                                                                                                        os.path.basename(
                                                                                                            chapter_path)))
                     continue
-                image_bytes = io.BytesIO(img_response.content)
-                img_path = path.join(chapter_path, str(counter).zfill(len(str(total_pictures))) + ".jpg")
-                utils.force_image_rgb(img_content=image_bytes, img_path=img_path)
+                if utils.img_has_alpha_channel(img_content):
+                    utils.log(self.loggers,
+                              "[Info][{}][Chapter][Download] Image ".format(self.platform, img_path))
+                    # save image file after removing alpha channel
+                    utils.force_image_rgb(img_content=img_content, img_path=img_path)
+                else:
+                    # save image file
+                    with open(img_path, "wb") as f:
+                        f.write(img_content)
+
             except Exception as e:
+                utils.log(self.loggers,
+                          "[Error][{}][Chapter][Download] message: {}".format(self.platform, e))
                 utils.log(self.loggers,
                           "[Info][{}][Chapter][Download] Image {} corrupted".format(self.platform, counter))
                 corrupted_img_path = os.path.join(Path(__file__).parent.parent, 'corrupted_picture.jpg')
                 img = Image.open(corrupted_img_path)
-                img_path = path.join(chapter_path, str(counter).zfill(len(str(total_pictures))) + ".jpg")
                 img.save(img_path)  # save the corrupted image
             counter += 1
 
