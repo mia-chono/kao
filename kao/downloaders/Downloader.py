@@ -1,5 +1,5 @@
 import glob
-import io
+import re
 import os
 import shutil
 import time
@@ -55,7 +55,6 @@ class Downloader:
         if path.exists(path.join(chapter_path, f"{pdf_file_name}.pdf")):
             return path.join(chapter_path, f"{pdf_file_name}.pdf")
         return None
-
 
     def extract_pictures_links_from_webpage(dom: etree._Element) -> list[str]:
         raise "Not Implemented"
@@ -202,13 +201,20 @@ class Downloader:
                          full_logs: bool = False) -> Chapter:
         raise "Not Implemented"
 
+    @staticmethod
+    def _clear_name(name: str, list_of_char_to_replace) -> str:
+
+        new_name = utils.replace_char_in_string(name, list_of_char_to_replace, "")
+        new_name = utils.remove_dots_end_of_file_name(unidecode.unidecode(new_name))
+
+        print(new_name)
+        print(re.sub(r'[^A-Za-z0-9\s-]+', '', new_name).strip())
+        return re.sub(r'[^A-Za-z0-9\s-]+', '', new_name).strip()
+
     def _download_chapter_files(self, dom: etree._Element, series_title: str, series_chapter: str, referer: str,
                                 force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False) -> Chapter:
-        series_name = utils.replace_char_in_string(series_title, utils.invalid_directory_name_chars, "").strip()
-        chapter_name = utils.replace_char_in_string(series_chapter, utils.invalid_directory_name_chars, "").strip()
-
-        series_name = utils.remove_dots_end_of_file_name(unidecode.unidecode(series_name))
-        chapter_name = utils.remove_dots_end_of_file_name(unidecode.unidecode(chapter_name))
+        series_name = self._clear_name(series_title, utils.invalid_directory_name_chars)
+        chapter_name = self._clear_name(series_chapter, utils.invalid_directory_name_chars)
 
         series_path = path.join(self.base_dir, series_name)
         chapter_path = path.join(series_path, chapter_name)
