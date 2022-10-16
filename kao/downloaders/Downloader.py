@@ -206,7 +206,7 @@ class Downloader:
         new_name = utils.replace_char_in_string(name, list_of_char_to_replace, "")
         new_name = utils.remove_dots_end_of_file_name(unidecode.unidecode(new_name))
 
-        return re.sub(r'[^A-Za-z0-9\s-]+', '', new_name).strip()
+        return re.sub(r'[A-Za-z0-9\s\-.°§+¦"@*#ç%&¬|¢()=]+', '', new_name).strip()
 
     def _download_chapter_files(self, dom: etree._Element, series_title: str, series_chapter: str, referer: str,
                                 force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False) -> Chapter:
