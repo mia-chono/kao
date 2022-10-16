@@ -210,8 +210,8 @@ class Downloader:
 
     def _download_chapter_files(self, dom: etree._Element, series_title: str, series_chapter: str, referer: str,
                                 force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False) -> Chapter:
-        series_name = self._clear_name(series_title, utils.invalid_directory_name_chars)
-        chapter_name = self._clear_name(series_chapter, utils.invalid_file_name_chars)
+        series_name = self._clear_name(series_title, utils.invalid_chars)
+        chapter_name = self._clear_name(series_chapter, utils.invalid_chars)
         print(series_name, chapter_name)
         series_path = path.join(self.base_dir, series_name)
         chapter_path = path.join(series_path, chapter_name)
