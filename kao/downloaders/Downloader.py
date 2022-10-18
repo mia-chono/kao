@@ -253,7 +253,9 @@ class Downloader:
 
         utils.log(self.loggers, "[Info][{}][Chapter] '{}': Creating pdf".format(self.platform, chapter.get_full_name()))
 
-        pdf_path = utils.convert_to_pdf(chapter_path, chapter.get_name(), self.loggers, full_logs)
+        # the check_img parameter is set to False because the images are downloaded and already checked during
+        # the download process
+        pdf_path = utils.convert_to_pdf(chapter_path, chapter.get_name(), self.loggers, False, full_logs)
         chapter.set_pdf_path(pdf_path)
 
         self._add_chapter_to_downloaded_chapters(series_path, chapter.get_name())
