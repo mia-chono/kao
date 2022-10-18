@@ -107,6 +107,16 @@ class Downloader:
         for link in pictures_links:
             img_response = self.scraper.get(link, headers=headers, cookies=self.cookies)
             img_content = img_response.content
+
+            # check img_content is OK because some sites return 200 even if the img is a fake img (ex: content is "OK")
+            # Example: when scan trads get img from Webtoons, the last img of the chapter is a fake img
+            if img_content == b'OK':
+                if full_logs:
+                    utils.log(self.loggers,
+                              "[Warning][{}][chapter] Image '{}' is a fake img, real content : '{}'".format(
+                                  self.platform, link, img_content))
+                continue
+
             img_path = path.join(chapter_path, str(counter).zfill(len(str(total_pictures))) + ".jpg")
             img_is_too_large_or_small = utils.img_is_too_small(img_content) \
                                         or utils.img_is_too_large(img_content)
