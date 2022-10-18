@@ -20,6 +20,7 @@ invalid_chars = [
     ':', '*', '?', '\\', '/', '"', '<', '>', '|', '«', '»'
 ]
 
+
 def remove_dots_end_of_file_name(file_name: str) -> str:
     tmp_name = file_name
     while tmp_name.endswith('.'):
@@ -59,7 +60,7 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
 
         # When is personal folder, we need to ensure that all images are images
         if check_img is True:
-            images_list = keep_only_images_paths(images_list, full_logs)
+            images_list = keep_only_images_paths(images_list)
 
         for i in range(0, len(images_list)):
             img_is_too_large_or_small = img_is_too_small(open(images_list[i], 'rb').read()) \
@@ -68,12 +69,12 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
             if full_logs:
                 log(loggers, '[Info][PDF][Image] {}'.format(images_list[i]))
 
-            if check_img is True and img_is_too_large_or_small:
+            if check_img is True or img_is_too_large_or_small:
                 img_to_remove.append(i)
                 if full_logs:
                     log(loggers, '[Info][PDF][Skip] Img too large or small, skipped: {}'.format(images_list[i]))
                 continue
-            if imghdr.what(images_list[i]) is None:
+            if test_is_image(images_list[i]) is None:
                 if full_logs:
                     log(loggers, '[Info][PDF] Img corrupted')
                 info_name = '[has_corrupted_images]'
@@ -145,8 +146,8 @@ def force_image_rgb(img_path: str, img_content: Optional[str] = None) -> None:
     rgb_img.save(img_path)
 
 
-def keep_only_images_paths(images_list: [str], alternative_file_name: Optional[str] = None) -> [str]:
-    images = list(filter(lambda elem: imghdr.what(elem) is not None, images_list))
+def keep_only_images_paths(images_list: [str]) -> [str]:
+    images = list(filter(lambda elem: test_is_image(elem), images_list))
     # When is personal folder, we need to ensure that all images are images
     for img in images_list:
         convert_img_to_jpeg(img)
@@ -180,7 +181,7 @@ def find_images_in_tree(folder_path: str) -> list[str]:
     images_list = []
     for root, dirs, files in os.walk(folder_path):
         for file in files:
-            if imghdr.what(file) is not None:
+            if test_is_image(file):
                 images_list.append(os.path.join(root, file))
 
     return images_list
@@ -194,9 +195,13 @@ def find_all_sub_folders(folder_path: str) -> list[str]:
             continue
         for file in files:
             file_path = os.path.join(root, file)
-            if imghdr.what(file_path) is not None or 'image/jpeg' == mimetypes.MimeTypes().guess_type(file_path)[0]:
+            if test_is_image(file_path):
                 dir_path = str(Path(file_path).parent.absolute())
                 if dir_path not in sub_folders:
                     sub_folders.append(dir_path)
 
     return sub_folders
+
+
+def test_is_image(file_path: str) -> bool:
+    return imghdr.what(file_path) is not None or 'image/jpeg' == mimetypes.MimeTypes().guess_type(file_path)[0]
