@@ -1,5 +1,4 @@
 import glob
-import re
 import os
 import shutil
 import time
@@ -12,6 +11,7 @@ import unidecode
 from PIL import Image
 from bs4 import BeautifulSoup
 from lxml import etree
+from lxml.etree import _Element
 
 from .Chapter import Chapter
 from .Series import Series
@@ -56,7 +56,8 @@ class Downloader:
             return path.join(chapter_path, f"{pdf_file_name}.pdf")
         return None
 
-    def extract_pictures_links_from_webpage(dom: etree._Element) -> list[str]:
+    @staticmethod
+    def extract_pictures_links_from_webpage(dom: _Element) -> list[str]:
         raise "Not Implemented"
 
     @staticmethod
