@@ -146,6 +146,12 @@ def force_image_rgb(img_path: str, img_content: Optional[str] = None) -> None:
     rgb_img.save(img_path)
 
 
+def get_img_extension(img_content) -> str:
+    img_parser = ImageFile.Parser()
+    img_parser.feed(img_content)
+    return img_parser.image.format
+
+
 def keep_only_images_paths(images_list: [str]) -> [str]:
     images = list(filter(lambda elem: test_is_image(elem), images_list))
     # When is personal folder, we need to ensure that all images are images
