@@ -34,7 +34,7 @@ class WebtoonDownloader(Downloader):
 
         return pictures_links
 
-    def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False):
+    def download_series(self, link: str, force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False):
         utils.log(self.loggers, "[Info][{}][Series] Get HTML content".format(self.platform))
 
         soup, dom = self._get_page_content(link)
@@ -45,7 +45,7 @@ class WebtoonDownloader(Downloader):
             dom.xpath("/html/body/div[1]/div[3]/div/div[2]/div[2]/div[1]/ul/li[1]/a")[0].get("href").split(
                 "&episode_no=")[1]
 
-        series_title = unidecode.unidecode(soup.find("h1", {"class": "subj"}).text)
+        series_title = self._clear_name(soup.find("h1", {"class": "subj"}).text)
 
         series = self.generate_series(series_title, link)
 
@@ -63,8 +63,8 @@ class WebtoonDownloader(Downloader):
     def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False):
         soup, dom = self._get_page_content(link)
 
-        series_title = dom.xpath('//*[@id="toolbar"]/div[1]/div/a')[0].text
-        series_chapter = dom.xpath('//*[@id="toolbar"]/div[1]/div/h1')[0].text
+        series_title = self._clear_name(dom.xpath('//*[@id="toolbar"]/div[1]/div/a')[0].text)
+        series_chapter = self._clear_name(dom.xpath('//*[@id="toolbar"]/div[1]/div/h1')[0].text)
 
         return self._download_chapter_files(dom, series_title, series_chapter, 'https://www.webtoons.com', force_re_dl,
                                             keep_img, full_logs)

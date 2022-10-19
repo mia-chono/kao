@@ -48,7 +48,7 @@ class MangaOriginesXDownloader(Downloader):
         soup, _ = self._get_page_content(link)
         soup_chapters = self._get_chapters_from_series(link)
 
-        series_title = unidecode.unidecode(soup.find("div", {"class": "post-title"}).find("h1").text.rstrip().replace("\n", ""))
+        series_title = self._clear_name(soup.find("div", {"class": "post-title"}).find("h1").text)
 
         series = self.generate_series(series_title, link)
 
@@ -69,8 +69,8 @@ class MangaOriginesXDownloader(Downloader):
 
         soup, dom = self._get_page_content(link)
 
-        series_title = soup.select_one(".breadcrumb > li:nth-child(3)").text.rstrip().replace("\n", "")
-        series_chapter = soup.select_one(".breadcrumb > .active").text.rstrip().replace("\n", "")
+        series_title = self._clear_name(soup.select_one(".breadcrumb > li:nth-child(3)").text)
+        series_chapter = self._clear_name(soup.select_one(".breadcrumb > .active").text)
 
         return self._download_chapter_files(dom, series_title, series_chapter, 'https://x.mangas-origines.fr/',
                                             force_re_dl, keep_img, full_logs)

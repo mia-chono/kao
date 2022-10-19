@@ -45,7 +45,7 @@ class Manga18Downloader(Downloader):
 
         soup, dom = self._get_page_content(link)
 
-        series_title = unidecode.unidecode(soup.find('div', {'class': 'detail_name'}).find('h1').text)
+        series_title = self._clear_name(soup.find('div', {'class': 'detail_name'}).find('h1').text)
 
         series = self.generate_series(series_title, link)
 
@@ -63,8 +63,8 @@ class Manga18Downloader(Downloader):
     def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False):
         soup, dom = self._get_page_content(link)
 
-        series_title = soup.find('div', {'class': 'story_name'}).find('h1').text
-        series_chapter = soup.find('div', {'class': 'chapter_name'}).find('span').text
+        series_title = self._clear_name(soup.find('div', {'class': 'story_name'}).find('h1').text)
+        series_chapter = self._clear_name(soup.find('div', {'class': 'chapter_name'}).find('span').text)
 
         return self._download_chapter_files(dom, series_title, series_chapter, 'https://manga18.club', force_re_dl,
                                             keep_img, full_logs)

@@ -35,7 +35,7 @@ class ReaperScansDownloader(Downloader):
 
         soup, dom = self._get_page_content(link)
 
-        series_title = unidecode.unidecode(soup.find("div", {"class": "post-title"}).find("h1").text.rstrip().replace("\n", ""))
+        series_title = self._clear_name(soup.find("div", {"class": "post-title"}).find("h1").text)
 
         series = self.generate_series(series_title, link)
 
@@ -53,8 +53,8 @@ class ReaperScansDownloader(Downloader):
     def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False):
         soup, dom = self._get_page_content(link)
 
-        series_title = soup.select_one(".breadcrumb > li:nth-child(2)").text.rstrip().replace("\n", "")
-        series_chapter = soup.select_one(".breadcrumb > .active").text.rstrip().replace("\n", "")
+        series_title = self._clear_name(soup.select_one(".breadcrumb > li:nth-child(2)").text)
+        series_chapter = self._clear_name(soup.select_one(".breadcrumb > .active").text)
 
         return self._download_chapter_files(dom, series_title, series_chapter, 'https://reaperscans.fr/', force_re_dl,
                                             keep_img, full_logs)

@@ -35,7 +35,7 @@ class ManhuascanDownloader(Downloader):
 
         soup, dom = self._get_page_content(link)
 
-        series_title = unidecode.unidecode(dom.xpath("/html/body/div[2]/div/div[2]/article/div[1]/div[2]/div[1]/div[1]/div/h1")[0].text)
+        series_title = self._clear_name(dom.xpath("/html/body/div[2]/div/div[2]/article/div[1]/div[2]/div[1]/div[1]/div/h1")[0].text)
 
         series = self.generate_series(series_title, link)
 
@@ -53,8 +53,8 @@ class ManhuascanDownloader(Downloader):
     def download_chapter(self, link: str, force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False):
         soup, dom = self._get_page_content(link)
 
-        series_title = dom.xpath("/html/body/div[2]/div[2]/div[1]/div/article/div[1]/div/a")[0].text
-        series_chapter = dom.xpath("//*[@id='chapter']//option[@selected='selected']")[0].text
+        series_title = self._clear_name(dom.xpath("/html/body/div[2]/div[2]/div[1]/div/article/div[1]/div/a")[0].text)
+        series_chapter = self._clear_name(dom.xpath("//*[@id='chapter']//option[@selected='selected']")[0].text)
 
         return self._download_chapter_files(dom, series_title, series_chapter, 'https://manhuascan.us', force_re_dl,
                                             keep_img, full_logs)
