@@ -108,7 +108,7 @@ class Downloader:
         for link in pictures_links:
             img_response = self.scraper.get(link, headers=headers, cookies=self.cookies)
             img_content = img_response.content
-
+            img_extension = utils.get_img_extension(img_content)
             # check img_content is OK because some sites return 200 even if the img is a fake img (ex: content is "OK")
             # Example: when Scantrad get img from Webtoons, the last img of the chapter is a fake img
             if img_content == b'OK':
@@ -118,9 +118,9 @@ class Downloader:
                                   self.platform, link, img_content))
                 continue
 
-            img_path = path.join(chapter_path, str(counter).zfill(len(str(total_pictures))) + ".jpg")
-            img_is_too_large_or_small = utils.img_is_too_small(img_content) \
-                                        or utils.img_is_too_large(img_content)
+            img_path = path.join(chapter_path, str(counter).zfill(len(str(total_pictures))) + "." + img_extension)
+            img_is_too_large_or_small = utils.img_is_too_small(img_content) or utils.img_is_too_large(img_content)
+
             try:
                 if img_is_too_large_or_small:
                     if full_logs:
@@ -130,12 +130,13 @@ class Downloader:
                                                                                                        os.path.basename(
                                                                                                            chapter_path)))
                     continue
-                if utils.img_has_alpha_channel(img_content):
+                if utils.img_has_alpha_channel(img_content) and img_extension.lower() != "png":
                     utils.log(self.loggers,
                               "[Info][{}][Chapter][Download] Image ".format(self.platform, img_path))
                     # save image file after removing alpha channel
                     utils.force_image_rgb(img_content=img_content, img_path=img_path)
                 else:
+                    # print(img_path)
                     # save image file
                     with open(img_path, "wb") as f:
                         f.write(img_content)
@@ -213,16 +214,16 @@ class Downloader:
         raise "Not Implemented"
 
     @staticmethod
-    def _clear_name(name: str, list_of_char_to_replace) -> str:
+    def _clear_name(name: str) -> str:
         new_name = utils.remove_dots_end_of_file_name(unidecode.unidecode(name))
-        new_name = utils.replace_char_in_string(new_name, list_of_char_to_replace, "")
-        # return re.sub(r'[A-Za-z0-9\s\-.°§+¦"@*#ç%&¬|¢()=]+', '', new_name).strip()
-        return new_name.strip()
+        new_name = utils.replace_char_in_string(new_name, utils.invalid_chars, "")
+
+        return utils.clear_white_characters(new_name.strip())
 
     def _download_chapter_files(self, dom: etree._Element, series_title: str, series_chapter: str, referer: str,
                                 force_re_dl: bool = False, keep_img: bool = False, full_logs: bool = False) -> Chapter:
-        series_name = self._clear_name(series_title, utils.invalid_chars)
-        chapter_name = self._clear_name(series_chapter, utils.invalid_chars)
+        series_name = self._clear_name(series_title)
+        chapter_name = self._clear_name(series_chapter)
         print(series_name, chapter_name)
         series_path = path.join(self.base_dir, series_name)
         chapter_path = path.join(series_path, chapter_name)
