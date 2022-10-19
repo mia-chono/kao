@@ -45,8 +45,8 @@ class PersonalDownloader(Downloader):
         series_name = path[path.rfind(os.sep) + 1:]
         chap_name = link[link.rfind(os.sep) + 1:]
 
-        series_name = unidecode.unidecode(series_name)
-        chap_name = unidecode.unidecode(chap_name)
+        series_name = self._clear_name(series_name)
+        chap_name = self._clear_name(chap_name)
 
         if series_name is None:
             series_name = "Custom Series"
