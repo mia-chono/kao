@@ -17,7 +17,7 @@ invalid_chars = [
     chr(0), chr(1), chr(2), chr(3), chr(4), chr(5), chr(6), chr(7), chr(8), chr(9), chr(10), chr(11),
     chr(12), chr(13), chr(14), chr(15), chr(16), chr(17), chr(18), chr(19), chr(20), chr(21), chr(22), chr(23), chr(24),
     chr(25), chr(26), chr(27), chr(28), chr(29), chr(30), chr(31), chr(34), chr(60), chr(62), chr(124), chr(127), '\0',
-    ':', '*', '?', '\\', '/', '"', '<', '>', '|', '«', '»'
+    ':', '*', '?', '\\', '/', '"', '<', '>', '|', '«', '»', "\n", "\t"
 ]
 
 
@@ -201,6 +201,10 @@ def find_all_sub_folders(folder_path: str) -> list[str]:
                     sub_folders.append(dir_path)
 
     return sub_folders
+
+
+def clear_white_characters(text: str) -> str:
+    return text.rstrip().replace('\r', '').replace('\n', '').replace('\t', '')
 
 
 def test_is_image(file_path: str) -> bool:
