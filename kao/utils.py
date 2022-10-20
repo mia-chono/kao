@@ -129,18 +129,12 @@ def img_has_alpha_channel(img_content: bytes) -> bool:
     return img_parser.image.mode == 'RGBA'
 
 
-def convert_img_to_jpeg(img_path: str, alternative_file_name: Optional[str] = None) -> None:
-    if 'image/jpeg' == mimetypes.MimeTypes().guess_type(img_path)[0] and not img_has_alpha_channel(
-            open(img_path, 'rb').read()):
+def force_image_rgb(img_path: str, img_content: Optional[str] = None) -> None:
+    if img_content is not None and get_img_extension(img_content) == 'png':
+        return
+    if get_img_extension(open(img_path, 'rb').read()) == 'png':
         return
 
-    temp_path = Path(img_path)
-    file_path = os.path.join(temp_path.parent,
-                             alternative_file_name if alternative_file_name is not None else temp_path.name)
-    force_image_rgb(img_path=file_path)
-
-
-def force_image_rgb(img_path: str, img_content: Optional[str] = None) -> None:
     img = Image.open(img_path if img_content is None else img_content)
     rgb_img = img.convert('RGB')
     rgb_img.save(img_path)
@@ -156,7 +150,7 @@ def keep_only_images_paths(images_list: [str]) -> [str]:
     images = list(filter(lambda elem: test_is_image(elem), images_list))
     # When is personal folder, we need to ensure that all images are images
     for img in images_list:
-        convert_img_to_jpeg(img)
+        force_image_rgb(img)
 
     return images
 
