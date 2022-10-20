@@ -69,7 +69,7 @@ def convert_to_pdf(episode_dir: str, file_name: str, loggers: list[Logger], chec
             if full_logs:
                 log(loggers, '[Info][PDF][Image] {}'.format(images_list[i]))
 
-            if check_img is True or img_is_too_large_or_small:
+            if img_is_too_large_or_small:
                 img_to_remove.append(i)
                 if full_logs:
                     log(loggers, '[Info][PDF][Skip] Img too large or small, skipped: {}'.format(images_list[i]))
