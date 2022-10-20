@@ -136,7 +136,6 @@ class Downloader:
                     # save image file after removing alpha channel
                     utils.force_image_rgb(img_content=img_content, img_path=img_path)
                 else:
-                    # print(img_path)
                     # save image file
                     with open(img_path, "wb") as f:
                         f.write(img_content)

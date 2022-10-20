@@ -1,5 +1,4 @@
 import re
-import unidecode
 
 from .Downloader import Downloader
 from .. import utils
@@ -14,13 +13,13 @@ class WebtoonDownloader(Downloader):
 
     @staticmethod
     def is_a_series_link(link: str) -> bool:
-        return re.search(r"https?://(www\.)?webtoons\.com/\w{2}/((\w*-*%*)+\d*)/((\w*-*%*)+\d*)/list\?title_no=\d+$",
+        return re.search(r"https?://(www\.)?webtoons\.com/\w{2}/[\w\-%]+/[\w\-%]+/list\?title_no=\d+$",
                          link) is not None
 
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
         return re.search(
-            r"https?://(www\.)?webtoons\.com/\w{2}/((\w*-*%*)+\d*)/((\w*-*%*)+\d*)/[a-zA-Z\d-]+/viewer\?title_no=\d*&episode_no=\d+$",
+            r"https?://(www\.)?webtoons\.com/\w{2}/[\w\-%]+/[\w\-%]+/[a-zA-Z\d-]+/viewer\?title_no=\d*&episode_no=\d+$",
             link) is not None
 
     @staticmethod

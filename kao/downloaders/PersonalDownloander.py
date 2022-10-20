@@ -1,6 +1,5 @@
 import os
 import validators
-import unidecode
 
 from kao import utils
 from .Series import Series

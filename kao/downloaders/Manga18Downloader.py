@@ -1,6 +1,5 @@
 import base64
 import re
-import unidecode
 
 from .Downloader import Downloader
 from .. import utils

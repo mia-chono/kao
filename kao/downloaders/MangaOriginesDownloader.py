@@ -1,5 +1,4 @@
 import re
-import unidecode
 
 from bs4 import BeautifulSoup
 
@@ -15,7 +14,7 @@ class MangaOriginesDownloader(Downloader):
 
     @staticmethod
     def is_a_series_link(link: str) -> bool:
-        return re.search(r"https?://(www\.)?mangas-origines\.fr/manga/[\w\-\d%]+/?$", link) is not None
+        return re.search(r"https?://(www\.)?mangas-origines\.fr/manga/[\w\-%]+/?$", link) is not None
 
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
