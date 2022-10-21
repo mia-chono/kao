@@ -110,6 +110,11 @@ class Downloader:
             img_content = img_response.content
             # check img_content is OK because some sites return 200 even if the img is a fake img (ex: content is "OK")
             # Example: when Scantrad get img from Webtoons, the last img of the chapter is a fake img
+            if img_response.status_code != 200:
+                if full_logs:
+                    utils.log(self.loggers,
+                              "[Error][{}][Chapter] Error while downloading picture '{}'".format(self.platform, link))
+                continue
             if img_content == b'OK':
                 if full_logs:
                     utils.log(self.loggers,
