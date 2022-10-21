@@ -25,8 +25,14 @@ class MangaOriginesDownloader(Downloader):
     @staticmethod
     def extract_pictures_links_from_webpage(dom) -> list[str]:
         img_tags = dom.xpath('//*[@class="reading-content"]//img')
+        pictures_links = []
 
-        pictures_links = list(map(lambda img_tag: img_tag.get("src").strip(), img_tags))
+        for img_tag in img_tags:
+            img_link = img_tag.get("src").strip()
+            if "data:image/svg" in img_link:
+                img_link = img_tag.get("data-lazy-src").strip()
+
+            pictures_links.append(img_link)
 
         return pictures_links
 
