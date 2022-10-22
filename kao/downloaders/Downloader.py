@@ -115,7 +115,7 @@ class Downloader:
                     utils.log(self.loggers,
                               "[Error][{}][Chapter] Error while downloading picture '{}'".format(self.platform, link))
                 continue
-            if img_content == b'OK':
+            if img_content == b'OK' or b'Bad Request' in img_content:
                 if full_logs:
                     utils.log(self.loggers,
                               "[Warning][{}][chapter] Image '{}' is a fake img, real content : '{}'".format(
