@@ -103,7 +103,6 @@ def create_parser() -> argparse.ArgumentParser:
                         help=argparse.SUPPRESS,
                         action="store_true",
                         default=False)
-
     parser.add_argument("-l",
                         "--links",
                         nargs="+",

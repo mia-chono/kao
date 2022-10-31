@@ -1,25 +1,22 @@
 # KAO
 ## Console Help
 ```bash
-usage: __main__.py [-h] [-l LINKS [LINKS ...]] [-k | --keep-img | --no-keep-img] [-f | --force | --no-force] [-m [MOVE_PDF]] [-r [READ_FILE]] [-s | --support | --no-support]
-
+usage: __main__.py [-h] [-l LINKS [LINKS ...]] [-k] [-f] [-p] [-m [MOVE_PDF]] [-r [READ_FILE]] [-s]
 
 Downloader of manwha or manga scans
 
 options:
   -h, --help            show this help message and exit
   -l LINKS [LINKS ...], --links LINKS [LINKS ...]
-                        Give chapters or series links (example2: py __main__.py -l link1 link2) (example2: py __main__.py -l link1 link2 -r file -m)
-  -k, --keep-img, --no-keep-img
-                        If you want keep all images after download (example: py __main__.py -fkl link) (example2: py __main__.py -l link -r file -m) (default: False)
-  -f, --force, --no-force
-                        Download again the scan (example: py __main__.py -fkl link) (example2: py __main__.py -l link -r file -m) (default: False)
+                        Give chapters or series links (example: py __main__.py -l link1 link2) (example2: py __main__.py -l link1 link2 -r file -m)
+  -k, --keep-img        If you want keep all images after download (example: py __main__.py -fkl link) (example2: py __main__.py -l link -r file -m)
+  -f, --force           Download again the scan (example: py __main__.py -fkl link) (example2: py __main__.py -l link -r file -m)
+  -p, --pdf             Create pdf after download (example: py __main__.py -fkpl link)
   -m [MOVE_PDF], --move-pdf [MOVE_PDF]
                         Move all pdf files to pdf folder (folder will be created if not exists at the root of the downloads folder), put ALWAYS at the end of command to move all pdf files
   -r [READ_FILE], --Read-file [READ_FILE]
                         Read given file to get urls, default is './list url.txt' but you can specify another (example: py __main__.py -fkr file) (example2: py __main__.py -l link -r file -m)
-  -s, --support, --no-support
-                        Said supported websites (default: False)
+  -s, --support         Said supported websites
 ```
 
 ## Supported Sites
