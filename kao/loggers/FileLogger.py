@@ -1,7 +1,7 @@
 import os
 from os import path
 
-from .Logger import Logger
+from . import Logger
 
 
 class FileLogger(Logger):

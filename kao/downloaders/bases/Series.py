@@ -1,15 +1,15 @@
 from typing import Optional
 
-from .Chapter import Chapter
+from . import Chapter
 
 
 class Series:
     def __init__(self, name: str, series_link: str):
-        self.series_link = series_link
-        self.name = name
-        self.platform = None
-        self.chapters = []
-        self.chapters_links = []
+        self.series_link: str = series_link
+        self.name: str = name
+        self.platform: str | None = None
+        self.chapters: list[Chapter] = []
+        self.chapters_links: list[str] = []
 
     def set_name(self, name: str) -> None:
         self.name = name
@@ -23,7 +23,7 @@ class Series:
     def add_chapter_link(self, link: str) -> None:
         self.chapters_links.append(link)
 
-    def get_chapters_links(self) -> list[str]:
+    def get_all_chapter_links(self) -> list[str]:
         return self.chapters_links
 
     def get_chapter_link(self, index: int) -> str:

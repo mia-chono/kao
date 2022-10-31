@@ -1,4 +1,4 @@
-from .Logger import Logger
+from . import Logger
 
 
 class ConsoleLogger(Logger):

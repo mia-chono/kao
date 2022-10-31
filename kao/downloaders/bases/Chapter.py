@@ -2,20 +2,20 @@ from typing import Optional
 
 
 class Chapter:
-    def __init__(self, series_name: str, chapter_name: str, platform: str):
+    def __init__(self, series_name: str, name: str, platform: str):
         self.series_name = series_name
-        self.chapter_name = chapter_name
+        self.name = name
         self.platform = platform
         self.pdf_path = None
 
     def get_name(self) -> str:
-        return self.chapter_name
+        return self.name
 
     def get_series_name(self) -> str:
         return self.series_name
 
     def get_full_name(self) -> str:
-        return "{} - {}".format(self.series_name, self.chapter_name)
+        return "{} - {}".format(self.series_name, self.name)
 
     def which_platform(self) -> str:
         return self.platform
