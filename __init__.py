@@ -10,4 +10,5 @@ from .kao import MangaOriginesXDownloader
 from .kao import Logger
 from .kao import FileLogger
 from .kao import ConsoleLogger
-from .kao import utils as kao_utils
+from .kao import kao_utils
+from .kao import downloader_utils
