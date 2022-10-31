@@ -3,6 +3,7 @@
 ```bash
 usage: __main__.py [-h] [-l LINKS [LINKS ...]] [-k | --keep-img | --no-keep-img] [-f | --force | --no-force] [-m [MOVE_PDF]] [-r [READ_FILE]] [-s | --support | --no-support]
 
+
 Downloader of manwha or manga scans
 
 options:
@@ -19,7 +20,6 @@ options:
                         Read given file to get urls, default is './list url.txt' but you can specify another (example: py __main__.py -fkr file) (example2: py __main__.py -l link -r file -m)
   -s, --support, --no-support
                         Said supported websites (default: False)
-
 ```
 
 ## Supported Sites
@@ -94,7 +94,7 @@ example:
  |_ 03.jpg
 ```
 
-execute the next line `py __main__.py -l /path/to/manga/chap-01`, it will create inside the same folder a new pdf file with the parent folder name -> `chap-01.pdf`
+execute the next line `py __main__.py -pl /path/to/manga/chap-01`, it will create inside the same folder a new pdf file with the parent folder name -> `chap-01.pdf`
 
 ### Example 2: Folder with subfolders 
 We can also give a path to a folder containing several folders:
@@ -123,7 +123,7 @@ If you have the following message :
 > Image contains an alpha channel which will be stored as a separate soft mask (/SMask) image in PDF.
 
 Retry with the following command:  
-  `py __main__.py -kl /path/to/manga/chap-01`
+  `py __main__.py -kpl /path/to/manga/chap-01`
 
 But if the problem persists...  
 One of your images has a special property... if you still want convert to PDF, you have to convert your picture to remove the mask.
