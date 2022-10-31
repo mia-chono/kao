@@ -215,7 +215,6 @@ def get_all_chapters_from_series(list_downloaders: dict[str, Downloader],
     Get all chapters from a list of series
     :param list_downloaders: all downloaders to use
     :param series_links: list of series to get chapters
-    :param loggers: list of loggers
     :return: list of chapters with their platform like
      {platform: 'myWeb', link: 'https://myWeb.example/series/...'}
     """

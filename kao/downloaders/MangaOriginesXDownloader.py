@@ -10,7 +10,10 @@ from ..loggers import Logger
 
 
 class MangaOriginesXDownloader(Downloader):
-    platform = "Manga-Origines-X"
+    """
+    Downloader to scrape Mangas-Origines X series or chapters
+    """
+    platform = "Mangas-Origines-X"
 
     def __init__(self, base_dir: str, loggers: list[Logger] = None):
         super().__init__(base_dir, loggers)

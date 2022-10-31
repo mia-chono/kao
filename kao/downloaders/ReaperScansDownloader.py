@@ -8,6 +8,9 @@ from ..loggers import Logger
 
 
 class ReaperScansDownloader(Downloader):
+    """
+    Downloader to scrape ReaperScans.fr series or chapters
+    """
     platform = "ReaperScans"
 
     def __init__(self, base_dir: str, loggers: list[Logger] = None):

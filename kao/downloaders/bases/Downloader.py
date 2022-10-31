@@ -1,4 +1,3 @@
-import glob
 import os
 import shutil
 from os import path
@@ -17,6 +16,9 @@ from ...loggers import Logger
 
 
 class Downloader:
+    """
+    Abstract class to download scans from a website
+    """
     platform = None
 
     def __init__(self, base_dir: str, loggers: list[Logger] = None):
@@ -30,7 +32,6 @@ class Downloader:
                 'mobile': False
             },
         )
-
 
     @staticmethod
     def is_a_series_link(link: str) -> bool:

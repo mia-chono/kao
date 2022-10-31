@@ -8,6 +8,9 @@ from ..loggers import Logger
 
 
 class WebtoonDownloader(Downloader):
+    """
+    Downloader to scrape Webtoon.com series or chapters
+    """
     platform = "Webtoon"
 
     def __init__(self, base_dir: str, loggers: list[Logger] = None):

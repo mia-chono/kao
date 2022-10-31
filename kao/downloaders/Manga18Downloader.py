@@ -8,6 +8,9 @@ from ..loggers import Logger
 
 
 class Manga18Downloader(Downloader):
+    """
+    Downloader to scrape manga18.club series or chapters
+    """
     platform = "Manga18.club"
 
     def __init__(self, base_dir: str, loggers: list[Logger] = None):
@@ -25,7 +28,7 @@ class Manga18Downloader(Downloader):
     def extract_pictures_links_from_webpage(dom: etree._Element) -> list[str]:
         js_scpipt_with_pictures = dom.xpath('/html/body/div[3]/div[5]/script[1]')[0].text
 
-        js_array_of_pictures = re.search(r'var slides_p_path = \[((("\w+(=?)*")+,)+)\];',
+        js_array_of_pictures = re.search(r'var slides_p_path = \[((("\w+(=?)*")+,)+)];',
                                          js_scpipt_with_pictures).group(0)
 
         pictures_base64 = js_array_of_pictures.split('= [')[1].split(']')[0].replace('"', '')[:-1]

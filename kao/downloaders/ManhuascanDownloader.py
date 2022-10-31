@@ -8,6 +8,9 @@ from ..loggers import Logger
 
 
 class ManhuascanDownloader(Downloader):
+    """
+    Downloader to scrape Manhuascan series or chapters
+    """
     platform = "Manhuascan"
 
     def __init__(self, base_dir: str, loggers: list[Logger] = None):

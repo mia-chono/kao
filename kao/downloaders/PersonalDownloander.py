@@ -8,6 +8,9 @@ from ..loggers import Logger
 
 
 class PersonalDownloader(Downloader):
+    """
+    Downloader to convert a folder of images to a pdf
+    """
     platform = "PersonalDownloader"
 
     def __init__(self, base_dir: str, loggers: list[Logger] = None):
