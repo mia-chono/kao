@@ -10,6 +10,7 @@ from .downloaders import ReaperScansDownloader
 from .downloaders import WebtoonDownloader
 from .downloaders import MangasOriginesDownloader
 from .downloaders import MangasOriginesXDownloader
+from .downloaders import MangaScantradDownloader
 from .loggers import ConsoleLogger
 from .loggers import FileLogger
 from .loggers import Logger

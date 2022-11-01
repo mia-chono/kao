@@ -13,6 +13,7 @@ from kao import ReaperScansDownloader
 from kao import WebtoonDownloader
 from kao import MangasOriginesDownloader
 from kao import MangasOriginesXDownloader
+from kao import MangaScantradDownloader
 
 if __name__ != "__main__":
     print("not executed by main")
@@ -33,6 +34,7 @@ list_downloaders: dict[str, Downloader] = {
     ReaperScansDownloader.platform: ReaperScansDownloader(base_dir, loggers),
     MangasOriginesDownloader.platform: MangasOriginesDownloader(base_dir, loggers),
     MangasOriginesXDownloader.platform: MangasOriginesXDownloader(base_dir, loggers),
+    MangaScantradDownloader.platform: MangaScantradDownloader(base_dir, loggers),
 }
 
 args = kao_utils.create_parser().parse_args()

@@ -9,3 +9,4 @@ from .ReaperScansDownloader import ReaperScansDownloader
 from .WebtoonDownloader import WebtoonDownloader
 from .MangasOriginesDownloader import MangasOriginesDownloader
 from .MangasOriginesXDownloader import MangasOriginesXDownloader
+from .MangaScantradDownloader import MangaScantradDownloader

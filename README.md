@@ -20,13 +20,14 @@ options:
 ```
 
 ## Supported Sites
-> last update 2022.08.16
+> last update 2022.11.01
 * Manga18.club
 * Manhuascan
 * ReaperScans
 * Webtoon
-* Manga-Origines
-* Manga-Origines-X
+* Mangas-Origines
+* Mangas-Origines-X
+* Manga-scantrad
 
 > *information*: you can download again a same scan with force parameter
 ## Group all PDF in one directory
