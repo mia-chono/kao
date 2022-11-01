@@ -9,7 +9,7 @@ from .. import kao_utils
 from ..loggers import Logger
 
 
-class MangaOriginesDownloader(Downloader):
+class MangasOriginesDownloader(Downloader):
     """
     Downloader to scrape Mangas-Origines series or chapters
     """

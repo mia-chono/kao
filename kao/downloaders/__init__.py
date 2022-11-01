@@ -4,8 +4,8 @@ from .bases import Chapter
 from .bases import Series
 from .Manga18Downloader import Manga18Downloader
 from .ManhuascanDownloader import ManhuascanDownloader
-from .PersonalDownloander import PersonalDownloader
+from .PersonalDownloader import PersonalDownloader
 from .ReaperScansDownloader import ReaperScansDownloader
 from .WebtoonDownloader import WebtoonDownloader
-from .MangaOriginesDownloader import MangaOriginesDownloader
-from .MangaOriginesXDownloader import MangaOriginesXDownloader
+from .MangasOriginesDownloader import MangasOriginesDownloader
+from .MangasOriginesXDownloader import MangasOriginesXDownloader

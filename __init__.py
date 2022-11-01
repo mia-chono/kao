@@ -5,8 +5,8 @@ from .kao import ManhuascanDownloader
 from .kao import PersonalDownloader
 from .kao import ReaperScansDownloader
 from .kao import WebtoonDownloader
-from .kao import MangaOriginesDownloader
-from .kao import MangaOriginesXDownloader
+from .kao import MangasOriginesDownloader
+from .kao import MangasOriginesXDownloader
 from .kao import Logger
 from .kao import FileLogger
 from .kao import ConsoleLogger

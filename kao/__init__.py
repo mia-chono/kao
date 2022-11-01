@@ -8,8 +8,8 @@ from .downloaders import ManhuascanDownloader
 from .downloaders import PersonalDownloader
 from .downloaders import ReaperScansDownloader
 from .downloaders import WebtoonDownloader
-from .downloaders import MangaOriginesDownloader
-from .downloaders import MangaOriginesXDownloader
+from .downloaders import MangasOriginesDownloader
+from .downloaders import MangasOriginesXDownloader
 from .loggers import ConsoleLogger
 from .loggers import FileLogger
 from .loggers import Logger
