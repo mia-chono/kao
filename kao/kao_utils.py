@@ -17,11 +17,24 @@ from .loggers import Logger
 
 
 def log(loggers: list[Logger], message: str) -> None:
+    """
+    Call all loggers to log a message
+    :param loggers: list[Logger] - list of loggers
+    :param message: str - message to log
+    :return: None
+    """
     for logger in loggers:
         logger.log(message)
 
 
 def move_pdf_files_from_folder(folder_path: str, destination_path: str, loggers: list[Logger]) -> None:
+    """
+    Move all pdf files from a folder to another
+    :param folder_path: str - path of the source folder
+    :param destination_path: str - path of the destination folder
+    :param loggers: list[Logger] - list of loggers
+    :return: None
+    """
     log(loggers, '[Info] moving all pdf files from \'{}\' to \'{}\''.format(folder_path, destination_path))
 
     # Move all pdf files from folder_path to destination_path by series name
@@ -39,6 +52,10 @@ def move_pdf_files_from_folder(folder_path: str, destination_path: str, loggers:
 
 
 def create_parser() -> argparse.ArgumentParser:
+    """
+    All arguments for the program
+    :return: argparse.ArgumentParser - parser with all arguments
+    """
     parser = argparse.ArgumentParser(description='Downloader of manwha or manga scans')
 
     # hidden argument
@@ -191,13 +208,13 @@ def download(list_downloaders: dict[str, Downloader], series: list[Series], chap
     for s in download_series(list_downloaders, series, force_re_dl, keep_img, full_logs):
         log(loggers, "[Info][{}][Chapter] '{}': creating {}...".format(s.platform, s.name, ext_file))
         for c in s.chapters:
-            chapter_builder(list_downloaders, c, ext_file, force_re_dl, loggers, full_logs)
+            concat_chapter_to(list_downloaders, c, ext_file, force_re_dl, loggers, full_logs)
         log(loggers, "[Info][{}][Chapter] '{}': all {} created".format(s.platform, s.name, ext_file))
         time.sleep(time_to_sleep)
 
     for c in download_chapters(list_downloaders, chapters, force_re_dl, keep_img, full_logs):
         # full_logs = True because we want to see the logs of the chapters
-        chapter_builder(list_downloaders, c, ext_file, force_re_dl, loggers, True)
+        concat_chapter_to(list_downloaders, c, ext_file, force_re_dl, loggers, True)
         time.sleep(time_to_sleep)
 
 
@@ -236,22 +253,24 @@ def download_chapters(list_downloaders: dict[str, Downloader], chapters: list[di
         yield downloader.download_chapter(chapter["link"], force_re_dl, keep_img, full_logs)
 
 
-def chapter_builder(list_downloaders: dict[str, Downloader], chapter: Chapter, ext_file: str, force_re_dl: bool,
-                    loggers: list[Logger], full_logs: bool) -> None:
+def concat_chapter_to(list_downloaders: dict[str, Downloader], chapter: Chapter, ext_file: str, force_re_dl: bool,
+                      loggers: list[Logger], full_logs: bool) -> None:
     """
-    Build a chapter as a pdf file or other format if needed
+    Concatenate all images of a chapter to create a specific file
     :param list_downloaders: dict[str, Downloader] - all downloaders to use
     :param chapter: Chapter - chapter to build
-    :param ext_file: str - file extension to create
+    :param ext_file: str - file extension to create (works only for PDF, ZIP, CBZ)
     :param force_re_dl: bool - if True, make again the action the selected action
     :param loggers: list[Logger] - list of loggers
     :param full_logs: bool - if True, display all logs
     :return: None
     """
+    allowed_ext = ["pdf", "zip", "cbz"]
+
     if ext_file == "":
         return
 
-    if not ext_file.lower() in ["pdf", "zip", "cbz"]:
+    if not ext_file.lower() in allowed_ext:
         log(loggers,
             "[Error][{}][Chapter] '{}': {} is not a valid format".format(chapter.platform, chapter.get_full_name(),
                                                                          ext_file))
@@ -268,25 +287,25 @@ def chapter_builder(list_downloaders: dict[str, Downloader], chapter: Chapter, e
         os.remove(file)
     elif file_already_created:
         log(loggers,
-            "[Info][{}][Chapter] '{}': {} already created".format(chapter.platform, chapter.get_name(), ext_file))
+            "[Info][{}][Chapter] '{}': {} already created".format(chapter.platform, chapter.get_full_name(), ext_file))
         return
 
     log(loggers,
         "[Info][{}][Chapter] '{}': Creating {}".format(chapter.platform, chapter.get_full_name(), ext_file))
 
-    images = get_img_from_folder(chapter_path, ext_file, loggers, full_logs)
+    images = get_img_from_folder(chapter_path, loggers, full_logs)
     if not images:
         log(loggers, "[Error][{}][Chapter] '{}': No images found".format(chapter.platform, chapter.get_full_name()))
         return
 
     if full_logs:
         log(loggers, '[Info][{}] creating'.format(ext_file.capitalize()))
-    if "pdf" == ext_file.lower():
-        make_pdf(file, images)
-    elif "zip" == ext_file.lower():
-        make_zip(file, images)
-    elif "cbz" == ext_file.lower():
-        make_cbz(file, images)
+
+    for ext in allowed_ext:
+        if ext == ext_file.lower():
+            # call the function to create the file
+            globals()['create_{}'.format(ext)](file, images)
+            break
 
     if full_logs:
         log(loggers, '[Info][{}] created'.format(ext_file.capitalize()))
@@ -296,6 +315,12 @@ def chapter_builder(list_downloaders: dict[str, Downloader], chapter: Chapter, e
 
 
 def get_series_path(list_downloaders: dict[str, Downloader], chapter: Chapter, ) -> str:
+    """
+    Get the path of the series of a chapter
+    :param list_downloaders: dict[str, Downloader] - all downloaders to use
+    :param chapter: Chapter - chapter to get the series path
+    :return: str - path of the series
+    """
     series_path = os.path.join(list_downloaders[chapter.platform].base_dir, chapter.series_name)
     if list_downloaders[chapter.platform].platform == PersonalDownloader.platform:
         series_path = chapter.get_path().rsplit(os.sep, 1)[0]
@@ -303,17 +328,30 @@ def get_series_path(list_downloaders: dict[str, Downloader], chapter: Chapter, )
 
 
 def get_chapter_path(series_path: str, chapter: Chapter) -> str:
+    """
+    Get the path of a chapter
+    :param series_path: str - path of the series
+    :param chapter: Chapter - chapter to get the name
+    :return: str - path of the chapter
+    """
     return os.path.join(series_path, chapter.get_name())
 
 
-def get_img_from_folder(chapter_dir: str, ext_file: str, loggers: list[Logger],
+def get_img_from_folder(path: str, loggers: list[Logger],
                         full_logs: bool = False) -> list[str]:
+    """
+    Get all images from a folder
+    :param path: str - path of the folder
+    :param loggers: list[Logger] - list of loggers
+    :param full_logs: bool - if True, display all logs
+    :return: list[str] - list of images
+    """
     images_list = []
     try:
 
-        for element in os.listdir(chapter_dir):
-            if os.path.join(chapter_dir, element) is not None:
-                images_list.append(os.path.join(chapter_dir, element))
+        for element in os.listdir(path):
+            if os.path.join(path, element) is not None:
+                images_list.append(os.path.join(path, element))
         images_list.sort()
 
         img_to_remove = []
@@ -325,37 +363,55 @@ def get_img_from_folder(chapter_dir: str, ext_file: str, loggers: list[Logger],
                                         or downloader_utils.img_is_too_large(open(images_list[i], 'rb').read())
 
             if full_logs:
-                log(loggers, '[Info][{}][Image] {}'.format(ext_file, images_list[i]))
+                log(loggers, '[Info][Image] {}'.format(images_list[i]))
 
             if img_is_too_large_or_small:
                 img_to_remove.append(i)
                 if full_logs:
                     log(loggers,
-                        '[Info][{}][Image][Skip] Img too large or small, skipped: {}'.format(ext_file, images_list[i]))
+                        '[Info][Image][Skip] Img too large or small, skipped: {}'.format(images_list[i]))
                 continue
             if downloader_utils.test_is_image(images_list[i]) is None:
-                log(loggers, '[Warning][{}][Image] Corrupted: {}'.format(ext_file, images_list[i]))
+                log(loggers, '[Warning][Image] Corrupted: {}'.format(images_list[i]))
                 images_list[i] = os.path.join(Path(__file__).parent, 'corrupted_picture.jpg')
 
         # Remove unwanted images
         [images_list.pop(x) for x in img_to_remove]
     except Exception as e:
         images_list = []
-        log(loggers, '[Error][{}][Images]  {error}'.format(ext_file, error=e))
+        log(loggers, '[Error][Images]  {error}'.format(error=e))
     finally:
         return images_list
 
 
-def make_pdf(path: str, images_list: list[str]):
+def create_pdf(path: str, images_list: list[str]) -> None:
+    """
+    Create a PDF file from a list of images
+    :param path: str - path of the PDF file
+    :param images_list: list[str] - list of images
+    :return: None
+    """
     with open(path, 'wb') as f:
         f.write(img2pdf.convert(images_list))
 
 
-def make_zip(path: str, images_list: list[str]):
+def create_zip(path: str, images_list: list[str]) -> None:
+    """
+    Create a ZIP file from a list of images
+    :param path: str - path of the ZIP file
+    :param images_list: list[str] - list of images
+    :return: None
+    """
     with ZipFile(path, 'w') as zipObj:
         for img in images_list:
             zipObj.write(img, img.split(os.sep)[-1])
 
 
-def make_cbz(path: str, images_list: list[str]):
-    make_zip(path, images_list)
+def create_cbz(path: str, images_list: list[str]) -> None:
+    """
+    Create a CBZ file from a list of images
+    :param path: str - path of the CBZ file
+    :param images_list: list[str] - list of images
+    :return: None
+    """
+    create_zip(path, images_list)
