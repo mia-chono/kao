@@ -44,7 +44,7 @@ series = []
 chapters_dict = []
 
 if args.support:
-    print("Supported websites:\n\t{}".format(", ".join(str(platform) for platform in list_downloaders.values())))
+    print("Supported websites:\n\t{}".format(", ".join(str(downloader.platform) for downloader in list_downloaders.values())))
     exit(0)
 
 if args.links:
@@ -67,11 +67,11 @@ chapters_dict.extend(tmp_chapters)
 kao_utils.download(list_downloaders, series, chapters_dict, loggers, args.ext_file, args.force_re_dl, args.keep_img,
                    args.logs, interval_between_download)
 
-if args.move_pdf is not False:
-    if args.move_pdf is not None and validators.url(args.move_pdf):
+if args.move_files is not False and args.ext_file != "":
+    if args.move_files is not None and validators.url(args.move_files):
         base_path = os.path.abspath(base_dir)
     else:
-        base_path = os.path.abspath(args.move_pdf if args.move_pdf is not None else base_dir)
-    destination_dir = os.path.join(base_path, "pdf")
+        base_path = os.path.abspath(args.move_files if args.move_files is not None else base_dir)
+    destination_dir = os.path.join(base_path, args.ext_file)
 
-    kao_utils.move_pdf_files_from_folder(base_path, destination_dir, loggers)
+    kao_utils.move_files_from_folder(base_path, destination_dir, args.ext_file, loggers)

@@ -2,7 +2,7 @@ import os
 import argparse
 import time
 from pathlib import Path
-from typing import Optional, Iterator
+from typing import Iterator
 import shutil
 from zipfile import ZipFile
 
@@ -27,11 +27,13 @@ def log(loggers: list[Logger], message: str) -> None:
         logger.log(message)
 
 
-def move_pdf_files_from_folder(folder_path: str, destination_path: str, loggers: list[Logger]) -> None:
+def move_files_from_folder(folder_path: str, destination_path: str, ext_to_move: str,
+                           loggers: list[Logger]) -> None:
     """
-    Move all pdf files from a folder to another
+    Move all files from a folder to another by their extension
     :param folder_path: str - path of the source folder
     :param destination_path: str - path of the destination folder
+    :param ext_to_move: str - extension of the files to move
     :param loggers: list[Logger] - list of loggers
     :return: None
     """
@@ -40,11 +42,11 @@ def move_pdf_files_from_folder(folder_path: str, destination_path: str, loggers:
     # Move all pdf files from folder_path to destination_path by series name
     for root, dirs, files in os.walk(folder_path):
         for file in files:
-            if 'pdf' in root:
+            if ext_to_move in root:
                 continue
             folder_path = Path(root).parent
             folder_name = Path(folder_path).name
-            if file.endswith('.pdf'):
+            if file.endswith('.{}'.format(ext_to_move)):
                 downloader_utils.create_directory(os.path.join(destination_path, folder_name))
                 shutil.move(os.path.join(root, file), os.path.join(destination_path, folder_name, file))
 
@@ -56,6 +58,7 @@ def create_parser() -> argparse.ArgumentParser:
     All arguments for the program
     :return: argparse.ArgumentParser - parser with all arguments
     """
+    allowed_ext = ["pdf", "zip", "cbz"]
     parser = argparse.ArgumentParser(description='Downloader of manwha or manga scans')
 
     # hidden argument
@@ -73,42 +76,45 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument("-k",
                         "--keep-img",
                         dest="keep_img",
-                        help="If you want keep all images after download (example: py __main__.py -fkl link) "
-                             "(example2: py __main__.py -l link -r file -m)",
+                        help="If you want keep all images after download (example: py __main__.py -kl link) "
+                             "(example2: py __main__.py -kl link -r file -m)",
                         action="store_true",
                         default=False)
     parser.add_argument("-f",
                         "--force",
                         dest="force_re_dl",
-                        help="Download again the scan (example: py __main__.py -fkl link) "
-                             "(example2: py __main__.py -l link -r file -m)",
+                        help="Download again the scan (example: py __main__.py -fl link) "
+                             "(example2: py __main__.py -fkl link -r file -f)",
                         action="store_true",
                         default=False)
     parser.add_argument("-e",
                         "--extension",
                         type=str,
                         dest="ext_file",
-                        help="define witch file do you want after download: pdf, zip, cbz"
-                             " (example: py __main__.py -fkl link -e pdf) ",
+                        help="define witch file do you want create after download: "
+                             "{}  (example: py __main__.py -fkl link -e pdf) ".format(", ".join(allowed_ext)),
                         default="")
     parser.add_argument("-m",
-                        "--move-pdf",
-                        dest="move_pdf",
+                        "--move-files",
+                        dest="move_files",
                         nargs="?",
-                        help="Move all pdf files to pdf folder (folder will be created if not exists at the root of "
-                             "the downloads folder), put ALWAYS at the end of command to move all pdf files",
+                        help="Move all specific files to the folder with the same extension name, dont forget to use -e"
+                             " (folder will be created if not exists at the root of the downloads folder),"
+                             " put ALWAYS at the end of command to move all pdf files"
+                             " (example: py __main__.py -fkl link -e pdf -m)"
+                             " (example2: py __main__.py -fkl link -e pdf -m ./myFolder)",
                         default=False)
     parser.add_argument("-r",
                         "--Read-file",
                         dest="read_file",
                         nargs="?",
                         help="Read given file to get urls, default is './list url.txt' but you can specify another "
-                             "(example: py __main__.py -fkr file) (example2: py __main__.py -l link -r file -m)",
+                             "(example: py __main__.py -fkr file) (example2: py __main__.py -fkl link -r file -m)",
                         default=False)
     parser.add_argument("-s",
                         "--support",
                         dest="support",
-                        help="Said supported websites",
+                        help="Said supported websites (example: py __main__.py -s)",
                         action="store_true",
                         default=False)
 
