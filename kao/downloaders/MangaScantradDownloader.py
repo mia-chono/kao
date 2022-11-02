@@ -25,7 +25,7 @@ class MangaScantradDownloader(Downloader):
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
         return re.search(
-            r"https?://(www\.)?manga-scantrad\.net/manga/[\w\-%]+/(chapitre|ch)-\d+[\w\-%]+?/?(\?style=(list|paged))?$",
+            r"https?://(www\.)?manga-scantrad\.net/manga/[\w\-%]+/(chapitre|ch)-\d+([\w\-%]+)?/?(\?style=(list|paged))?$",
             link) is not None
 
     @staticmethod

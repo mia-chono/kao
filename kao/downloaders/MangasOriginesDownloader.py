@@ -25,7 +25,7 @@ class MangasOriginesDownloader(Downloader):
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
         return re.search(
-            r"https?://(www\.)?mangas-origines\.fr/manga/[\w\-%]+/chapitre-\d+[\w\-%]+?/?(\?style=(list|paged))?$",
+            r"https?://(www\.)?mangas-origines\.fr/manga/[\w\-%]+/chapitre-\d+([\w\-%]+)?/?(\?style=(list|paged))?$",
             link) is not None
 
     @staticmethod

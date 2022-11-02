@@ -86,7 +86,7 @@ class Downloader:
 
     @staticmethod
     def _is_chapter_already_downloaded(series_path: str, chapter_name: str,
-                                       file_name: str = "downloaded_chapters.txt") -> bool:
+                                      file_name: str = "downloaded_chapters.txt") -> bool:
         """
         Check if the chapter is already downloaded
         :param series_path: str - path to the series
@@ -339,7 +339,7 @@ class Downloader:
 
         if self._is_chapter_already_downloaded(series_path, chapter.name) and not force_re_dl:
             kao_utils.log(self.loggers, "[Info][{}][Chapter] Chapter '{}' from '{}' is already downloaded"
-                          .format(self.platform, chapter.get_full_name(), series_name))
+                          .format(self.platform, chapter.get_name(), series_name))
             return chapter
 
         try:

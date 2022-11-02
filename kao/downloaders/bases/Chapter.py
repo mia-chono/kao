@@ -6,7 +6,7 @@ class Chapter:
         self.series_name = series_name
         self.name = name
         self.platform = platform
-        self.pdf_path = None
+        self.path = None
 
     def get_name(self) -> str:
         return self.name
@@ -20,8 +20,8 @@ class Chapter:
     def which_platform(self) -> str:
         return self.platform
 
-    def set_pdf_path(self, pdf_path: str) -> None:
-        self.pdf_path = pdf_path
+    def set_path(self, pdf_path: str) -> None:
+        self.path = pdf_path
 
-    def get_pdf_path(self) -> Optional[str]:
-        return self.pdf_path
+    def get_path(self) -> Optional[str]:
+        return self.path

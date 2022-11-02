@@ -62,12 +62,7 @@ class PersonalDownloader(Downloader):
         if chap_name is None:
             chap_name = "unknown chap"
         chapter = Chapter(series_name, chap_name, self.platform)
-
-        pdf_path = "{}.pdf".format(os.path.join(link, chap_name))
-        if os.path.exists(pdf_path) and force_re_dl:
-            os.remove(pdf_path)
-
-        chapter.set_pdf_path(pdf_path)
+        chapter.set_path(link)
 
         kao_utils.log(self.loggers, "[Info][{}][Chapter] '{}': Complete".format(self.platform, chapter.get_full_name()))
 
