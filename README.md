@@ -1,7 +1,7 @@
 # KAO
 ## Console Help
 ```bash
-usage: __main__.py [-h] [-l LINKS [LINKS ...]] [-k] [-f] [-p] [-m [MOVE_PDF]] [-r [READ_FILE]] [-s]
+usage: __main__.py [-h] [-l LINKS [LINKS ...]] [-k] [-f] [-e EXT_FILE] [-m [MOVE_FILES]] [-r [READ_FILE]] [-s]
 
 Downloader of manwha or manga scans
 
@@ -9,14 +9,17 @@ options:
   -h, --help            show this help message and exit
   -l LINKS [LINKS ...], --links LINKS [LINKS ...]
                         Give chapters or series links (example: py __main__.py -l link1 link2) (example2: py __main__.py -l link1 link2 -r file -m)
-  -k, --keep-img        If you want keep all images after download (example: py __main__.py -fkl link) (example2: py __main__.py -l link -r file -m)
-  -f, --force           Download again the scan (example: py __main__.py -fkl link) (example2: py __main__.py -l link -r file -m)
-  -p, --pdf             Create pdf after download (example: py __main__.py -fkpl link)
-  -m [MOVE_PDF], --move-pdf [MOVE_PDF]
-                        Move all pdf files to pdf folder (folder will be created if not exists at the root of the downloads folder), put ALWAYS at the end of command to move all pdf files
+  -k, --keep-img        If you want keep all images after download (example: py __main__.py -kl link) (example2: py __main__.py -kl link -r file -m)
+  -f, --force           Download again the scan (example: py __main__.py -fl link) (example2: py __main__.py -fkl link -r file -f)
+  -e EXT_FILE, --extension EXT_FILE
+                        define witch file do you want create after download: pdf, zip, cbz (example: py __main__.py -fkl link -e pdf)
+  -m [MOVE_FILES], --move-files [MOVE_FILES]
+                        Move all specific files to the folder with the same extension name, dont forget to use -e (folder will be created if not exists at the root of the downloads folder), put ALWAYS at the end of command to move  
+                        all pdf files (example: py __main__.py -fkl link -e pdf -m) (example2: py __main__.py -fkl link -e pdf -m ./myFolder)
   -r [READ_FILE], --Read-file [READ_FILE]
-                        Read given file to get urls, default is './list url.txt' but you can specify another (example: py __main__.py -fkr file) (example2: py __main__.py -l link -r file -m)
-  -s, --support         Said supported websites
+                        Read given file to get urls, default is './list url.txt' but you can specify another (example: py __main__.py -fkr file) (example2: py __main__.py -fkl link -r file -m)
+  -s, --support         Said supported websites (example: py __main__.py -s)
+
 ```
 
 ## Supported Sites
@@ -30,12 +33,12 @@ options:
 * Manga-scantrad
 
 > *information*: you can download again a same scan with force parameter
-## Group all PDF in one directory
+## Group all PDF, ZIP, CBZ in one directory
 * update 2022.08.07  
-When you use the property --move-pdf, all pdf files will be moved to a folder named pdf.    
-the pdf folder will be created if not exists at the root of the downloads folder if you don't give a path.  
+When you use the property --move-pdf with --extension, all files with your extension will be moved to a folder named "your_extension".    
+the "extension" folder will be created if not exists at the root of the downloads folder if you don't give a path.  
    
-if you give a specific path to move all pdf (including sub-folders), the pdf folder will be created if not exists at the path given earlier.
+if you give a specific path to move all files with your extension (including sub-folders), the "extension" folder will be created if not exists at the path given earlier.
 
 ### Example 1 - no given path
 Example for `py __main__.py -m "/path/to"`:
