@@ -140,7 +140,7 @@ def keep_only_images_paths(images_list: list[str]) -> list[str]:
     """
     images = list(filter(lambda elem: test_is_image(elem), images_list))
     # When is personal folder, we need to ensure that all images are images
-    for img in images_list:
+    for img in images:
         force_image_rgb(img)
 
     return images
