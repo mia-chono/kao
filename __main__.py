@@ -64,7 +64,7 @@ tmp_series, tmp_chapters = kao_utils.get_series_and_chapters_from_links(list_dow
 series.extend(kao_utils.get_series_from_dict(list_downloaders, tmp_series))
 chapters_dict.extend(tmp_chapters)
 
-kao_utils.download(list_downloaders, series, chapters_dict, loggers, args.make_pdf, args.force_re_dl, args.keep_img,
+kao_utils.download(list_downloaders, series, chapters_dict, loggers, args.ext_file, args.force_re_dl, args.keep_img,
                    args.logs, interval_between_download)
 
 if args.move_pdf is not False:

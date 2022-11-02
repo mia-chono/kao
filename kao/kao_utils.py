@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 from typing import Optional, Iterator
 import shutil
+from zipfile import ZipFile
 
 import img2pdf
 
@@ -37,63 +38,6 @@ def move_pdf_files_from_folder(folder_path: str, destination_path: str, loggers:
     log(loggers, '[Info] all pdf files moved')
 
 
-def convert_to_pdf(chapter_dir: str, file_name: str, loggers: list[Logger], check_img: bool = False,
-                   full_logs: bool = False) -> Optional[str]:
-    try:
-        if full_logs:
-            log(loggers, '[Info][PDF] creating')
-
-        images_list = []
-        for element in os.listdir(chapter_dir):
-            if os.path.join(chapter_dir, element) is not None:
-                images_list.append(os.path.join(chapter_dir, element))
-        images_list.sort()
-
-        info_name = ''
-        img_to_remove = []
-
-        # When is personal folder, we need to ensure that all images are images
-        if check_img is True:
-            images_list = downloader_utils.keep_only_images_paths(images_list)
-
-        for i in range(0, len(images_list)):
-            img_is_too_large_or_small = downloader_utils.img_is_too_small(open(images_list[i], 'rb').read()) \
-                                        or downloader_utils.img_is_too_large(open(images_list[i], 'rb').read())
-
-            if full_logs:
-                log(loggers, '[Info][PDF][Image] {}'.format(images_list[i]))
-
-            if img_is_too_large_or_small:
-                img_to_remove.append(i)
-                if full_logs:
-                    log(loggers, '[Info][PDF][Skip] Img too large or small, skipped: {}'.format(images_list[i]))
-                continue
-            if downloader_utils.test_is_image(images_list[i]) is None:
-                if full_logs:
-                    log(loggers, '[Info][PDF] Img corrupted')
-                info_name = '[has_corrupted_images]'
-                images_list[i] = os.path.join(Path(__file__).parent, 'corrupted_picture.jpg')
-
-        # Remove unwanted images
-        [images_list.pop(x) for x in img_to_remove]
-
-        pdf_path = os.path.join(chapter_dir, f'{info_name}{file_name}.pdf')
-
-        if os.path.exists(pdf_path):
-            os.remove(pdf_path)
-
-        with open(pdf_path, 'wb') as f:
-            f.write(img2pdf.convert(images_list))
-
-        if full_logs:
-            log(loggers, '[Info][PDF] created')
-
-        return pdf_path
-    except Exception as e:
-        log(loggers, '[Error][PDF] {error}'.format(error=e))
-        return
-
-
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='Downloader of manwha or manga scans')
 
@@ -123,12 +67,13 @@ def create_parser() -> argparse.ArgumentParser:
                              "(example2: py __main__.py -l link -r file -m)",
                         action="store_true",
                         default=False)
-    parser.add_argument("-p",
-                        "--pdf",
-                        dest="make_pdf",
-                        help="Create pdf after download (example: py __main__.py -fkpl link) ",
-                        action="store_true",
-                        default=False)
+    parser.add_argument("-e",
+                        "--extension",
+                        type=str,
+                        dest="ext_file",
+                        help="define witch file do you want after download: pdf, zip, cbz"
+                             " (example: py __main__.py -fkl link -e pdf) ",
+                        default="")
     parser.add_argument("-m",
                         "--move-pdf",
                         dest="move_pdf",
@@ -227,21 +172,33 @@ def get_all_chapters_from_series(list_downloaders: dict[str, Downloader],
     return chapters_to_download
 
 
-def download_chapters(list_downloaders: dict[str, Downloader], chapters: list[dict[str, str]], force_re_dl: bool,
-                      keep_img: bool, full_logs: bool = False) -> Iterator[Chapter]:
+def download(list_downloaders: dict[str, Downloader], series: list[Series], chapters: list[dict[str, str]],
+             loggers: list[Logger], ext_file: str, force_re_dl: bool, keep_img: bool, full_logs: bool = False,
+             time_to_sleep: int = 0) -> None:
     """
-    Download all chapters from a list of chapters with their platform
+    Download all chapters from a list of series and all chapters from a list of chapters
     :param list_downloaders: dict[str, Downloader] - all downloaders to use
+    :param series: list[Series] - list of series to download
     :param chapters: list[dict[str, str]] - list of dictionary with platform and link of chapters to download
+    :param loggers: list[Logger] - list of loggers
+    :param ext_file: str - file extension to create
     :param force_re_dl: bool - if True, download again the scan
     :param keep_img: bool - if True, keep all images after download
     :param full_logs: bool - if True, display all logs
-    :return: Iterator[Chapter] - iterator of downloaded chapters
+    :param time_to_sleep: int - time in seconds to sleep between each download
+    :return: tuple[Iterator[Series], Iterator[Chapter]] - iterator of downloaded series and chapters
     """
-    for chapter in chapters:
-        platform = chapter["platform"]
-        downloader = list_downloaders[platform]
-        yield downloader.download_chapter(chapter["link"], force_re_dl, keep_img, full_logs)
+    for s in download_series(list_downloaders, series, force_re_dl, keep_img, full_logs):
+        log(loggers, "[Info][{}][Chapter] '{}': creating {}...".format(s.platform, s.name, ext_file))
+        for c in s.chapters:
+            chapter_builder(list_downloaders, c, ext_file, force_re_dl, loggers, full_logs)
+        log(loggers, "[Info][{}][Chapter] '{}': all {} created".format(s.platform, s.name, ext_file))
+        time.sleep(time_to_sleep)
+
+    for c in download_chapters(list_downloaders, chapters, force_re_dl, keep_img, full_logs):
+        # full_logs = True because we want to see the logs of the chapters
+        chapter_builder(list_downloaders, c, ext_file, force_re_dl, loggers, True)
+        time.sleep(time_to_sleep)
 
 
 def download_series(list_downloaders: dict[str, Downloader], series: list[Series], force_re_dl: bool,
@@ -262,92 +219,143 @@ def download_series(list_downloaders: dict[str, Downloader], series: list[Series
         yield downloader.download_series(s, force_re_dl, keep_img, full_logs)
 
 
-def pdf_exists(chapter_path: str, pdf_file_name: str) -> Optional[str]:
+def download_chapters(list_downloaders: dict[str, Downloader], chapters: list[dict[str, str]], force_re_dl: bool,
+                      keep_img: bool, full_logs: bool = False) -> Iterator[Chapter]:
     """
-    Check if a pdf file exists
-    :param chapter_path: str - path of the chapter
-    :param pdf_file_name: str - name of the pdf file
-    :return: str - path of the pdf file if exists, None otherwise
-    """
-    if os.path.exists(os.path.join(chapter_path, "{}.pdf".format(pdf_file_name))):
-        return os.path.join(chapter_path, "{}.pdf".format(pdf_file_name))
-    return None
-
-
-def create_pdf_from_chapter(list_downloaders: dict[str, Downloader], chapter: Chapter, force_re_dl: bool,
-                            loggers: list[Logger], full_logs: bool) -> None:
-    """
-    Create a pdf file from a chapter
+    Download all chapters from a list of chapters with their platform
     :param list_downloaders: dict[str, Downloader] - all downloaders to use
-    :param chapter: Chapter - chapter to convert
-    :param force_re_dl: bool - if True, re-create the pdf file
-    :param loggers: list[Logger] - list of loggers
+    :param chapters: list[dict[str, str]] - list of dictionary with platform and link of chapters to download
+    :param force_re_dl: bool - if True, download again the scan
+    :param keep_img: bool - if True, keep all images after download
     :param full_logs: bool - if True, display all logs
-    :return: None
+    :return: Iterator[Chapter] - iterator of downloaded chapters
     """
-    series_path = os.path.join(list_downloaders[chapter.platform].base_dir, chapter.series_name)
-    chapter_path = os.path.join(series_path, chapter.get_name())
-
-    if full_logs:
-        log(loggers, "[Info][{}][Chapter] '{}': Creating pdf".format(chapter.platform, chapter.get_full_name()))
-
-    # Personal Downloader is a special use case
-    if list_downloaders[chapter.platform].platform == PersonalDownloader.platform:
-        series_path = chapter.get_pdf_path().rsplit(os.sep, 2)[0]
-        chapter_path = os.path.join(series_path, chapter.get_name())
-        if pdf_exists(chapter_path, chapter.get_name()) and not force_re_dl:
-            return
-        convert_to_pdf(chapter_path, chapter.get_name(), loggers, True, full_logs)
-    else:
-        pdf_path = pdf_exists(chapter_path, chapter.get_full_name())
-        if not pdf_path or force_re_dl:
-            pdf_path = convert_to_pdf(chapter_path, chapter.get_name(), loggers, False, full_logs)
-        chapter.set_pdf_path(pdf_path)
-
-    if full_logs:
-        log(loggers, "[Info][{}][Chapter] '{}': pdf completed".format(chapter.platform, chapter.get_full_name()))
+    for chapter in chapters:
+        platform = chapter["platform"]
+        downloader = list_downloaders[platform]
+        yield downloader.download_chapter(chapter["link"], force_re_dl, keep_img, full_logs)
 
 
-def chapter_builder(list_downloaders: dict[str, Downloader], chapter: Chapter, make_pdf: bool, force_re_dl: bool,
+def chapter_builder(list_downloaders: dict[str, Downloader], chapter: Chapter, ext_file: str, force_re_dl: bool,
                     loggers: list[Logger], full_logs: bool) -> None:
     """
     Build a chapter as a pdf file or other format if needed
     :param list_downloaders: dict[str, Downloader] - all downloaders to use
     :param chapter: Chapter - chapter to build
-    :param make_pdf: bool - if True, create a pdf file
+    :param ext_file: str - file extension to create
     :param force_re_dl: bool - if True, make again the action the selected action
     :param loggers: list[Logger] - list of loggers
     :param full_logs: bool - if True, display all logs
     :return: None
     """
-    if make_pdf:
-        create_pdf_from_chapter(list_downloaders, chapter, force_re_dl, loggers, full_logs)
+    if ext_file == "":
+        return
+
+    if not ext_file.lower() in ["pdf", "zip", "cbz"]:
+        log(loggers,
+            "[Error][{}][Chapter] '{}': {} is not a valid format".format(chapter.platform, chapter.get_full_name(),
+                                                                         ext_file))
+        return
+
+    series_path = get_series_path(list_downloaders, chapter)
+    chapter_path = get_chapter_path(series_path, chapter)
+    chapter.set_path(chapter_path)
+
+    file = os.path.join(chapter_path, "{}.{}".format(chapter.get_name(), ext_file))
+    file_already_created = os.path.exists(file)
+
+    if force_re_dl and file_already_created:
+        os.remove(file)
+    elif file_already_created:
+        log(loggers,
+            "[Info][{}][Chapter] '{}': {} already created".format(chapter.platform, chapter.get_name(), ext_file))
+        return
+
+    log(loggers,
+        "[Info][{}][Chapter] '{}': Creating {}".format(chapter.platform, chapter.get_full_name(), ext_file))
+
+    images = get_img_from_folder(chapter_path, ext_file, loggers, full_logs)
+    if not images:
+        log(loggers, "[Error][{}][Chapter] '{}': No images found".format(chapter.platform, chapter.get_full_name()))
+        return
+
+    if full_logs:
+        log(loggers, '[Info][{}] creating'.format(ext_file.capitalize()))
+    if "pdf" == ext_file.lower():
+        make_pdf(file, images)
+    elif "zip" == ext_file.lower():
+        make_zip(file, images)
+    elif "cbz" == ext_file.lower():
+        make_cbz(file, images)
+
+    if full_logs:
+        log(loggers, '[Info][{}] created'.format(ext_file.capitalize()))
+
+    log(loggers,
+        "[Info][{}][Chapter] '{}': {} completed".format(chapter.platform, chapter.get_full_name(), ext_file))
 
 
-def download(list_downloaders: dict[str, Downloader], series: list[Series], chapters: list[dict[str, str]],
-             loggers: list[Logger], make_pdf: bool, force_re_dl: bool, keep_img: bool, full_logs: bool = False,
-             time_to_sleep: int = 0) -> None:
-    """
-    Download all chapters from a list of series and all chapters from a list of chapters
-    :param list_downloaders: dict[str, Downloader] - all downloaders to use
-    :param series: list[Series] - list of series to download
-    :param chapters: list[dict[str, str]] - list of dictionary with platform and link of chapters to download
-    :param loggers: list[Logger] - list of loggers
-    :param make_pdf: bool - if True, create a pdf for each chapter
-    :param force_re_dl: bool - if True, download again the scan
-    :param keep_img: bool - if True, keep all images after download
-    :param full_logs: bool - if True, display all logs
-    :param time_to_sleep: int - time in seconds to sleep between each download
-    :return: tuple[Iterator[Series], Iterator[Chapter]] - iterator of downloaded series and chapters
-    """
-    for s in download_series(list_downloaders, series, force_re_dl, keep_img, full_logs):
-        log(loggers, "[Info][{}][Chapter] '{}': creating pdf...".format(s.platform, s.name))
-        for c in s.chapters:
-            chapter_builder(list_downloaders, c, make_pdf, force_re_dl, loggers, full_logs)
-        log(loggers, "[Info][{}][Chapter] '{}': all pdf created".format(s.platform, s.name))
-        time.sleep(time_to_sleep)
+def get_series_path(list_downloaders: dict[str, Downloader], chapter: Chapter, ) -> str:
+    series_path = os.path.join(list_downloaders[chapter.platform].base_dir, chapter.series_name)
+    if list_downloaders[chapter.platform].platform == PersonalDownloader.platform:
+        series_path = chapter.get_path().rsplit(os.sep, 1)[0]
+    return series_path
 
-    for c in download_chapters(list_downloaders, chapters, force_re_dl, keep_img, full_logs):
-        # full_logs = True because we want to see the logs of the chapters
-        chapter_builder(list_downloaders, c, make_pdf, force_re_dl, loggers, True)
-        time.sleep(time_to_sleep)
+
+def get_chapter_path(series_path: str, chapter: Chapter) -> str:
+    return os.path.join(series_path, chapter.get_name())
+
+
+def get_img_from_folder(chapter_dir: str, ext_file: str, loggers: list[Logger],
+                        full_logs: bool = False) -> list[str]:
+    images_list = []
+    try:
+
+        for element in os.listdir(chapter_dir):
+            if os.path.join(chapter_dir, element) is not None:
+                images_list.append(os.path.join(chapter_dir, element))
+        images_list.sort()
+
+        img_to_remove = []
+
+        images_list = downloader_utils.keep_only_images_paths(images_list)
+
+        for i in range(0, len(images_list)):
+            img_is_too_large_or_small = downloader_utils.img_is_too_small(open(images_list[i], 'rb').read()) \
+                                        or downloader_utils.img_is_too_large(open(images_list[i], 'rb').read())
+
+            if full_logs:
+                log(loggers, '[Info][{}][Image] {}'.format(ext_file, images_list[i]))
+
+            if img_is_too_large_or_small:
+                img_to_remove.append(i)
+                if full_logs:
+                    log(loggers,
+                        '[Info][{}][Image][Skip] Img too large or small, skipped: {}'.format(ext_file, images_list[i]))
+                continue
+            if downloader_utils.test_is_image(images_list[i]) is None:
+                log(loggers, '[Warning][{}][Image] Corrupted: {}'.format(ext_file, images_list[i]))
+                images_list[i] = os.path.join(Path(__file__).parent, 'corrupted_picture.jpg')
+
+        # Remove unwanted images
+        [images_list.pop(x) for x in img_to_remove]
+    except Exception as e:
+        images_list = []
+        log(loggers, '[Error][{}][Images]  {error}'.format(ext_file, error=e))
+    finally:
+        return images_list
+
+
+def make_pdf(path: str, images_list: list[str]):
+    with open(path, 'wb') as f:
+        f.write(img2pdf.convert(images_list))
+
+
+def make_zip(path: str, images_list: list[str]):
+    with ZipFile(path, 'w') as zipObj:
+        for img in images_list:
+            zipObj.write(img, img.split(os.sep)[-1])
+
+
+def make_cbz(path: str, images_list: list[str]):
+    make_zip(path, images_list)
