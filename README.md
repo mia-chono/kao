@@ -41,7 +41,7 @@ the "extension" folder will be created if not exists at the root of the download
 if you give a specific path to move all files with your extension (including sub-folders), the "extension" folder will be created if not exists at the path given earlier.
 
 ### Example 1 - no given path
-Example for `py __main__.py -m "/path/to"`:
+Example for `py __main__.py -m "/path/to" -e pdf`:
 ```
 /path/to/manga/chap-01
  |_ chap-01.pdf
@@ -52,7 +52,7 @@ Example for `py __main__.py -m "/path/to"`:
 ```
 > pdf files will be moved to the folder `pdf` at the root of the downloads folder.
 
-Result of `py __main__.py -m "/path/to"`:
+Result of `py __main__.py -m "/path/to" -e pdf`:
 ```
 /downloads/pdf/manga
  |_ chap-01.pdf
@@ -62,7 +62,7 @@ Result of `py __main__.py -m "/path/to"`:
 ```
 ### Example 2 - given path
 
-Example for `py __main__.py -m "/path/to/manga"`:
+Example for `py __main__.py -m "/path/to/manga -e pdf"`:
 ```
 /path/to/manga/chap-01
  |_ chap-01.pdf
@@ -71,7 +71,7 @@ Example for `py __main__.py -m "/path/to/manga"`:
 ```
 > pdf files will be moved to the folder `pdf` at the path given earlier.
 
-Result of `py __main__.py -m "/path/to/manga"`:
+Result of `py __main__.py -m "/path/to/manga -e pdf"`:
 ```
 /path/to/manga
  |_ /chap-01
@@ -95,7 +95,7 @@ example:
  |_ 03.jpg
 ```
 
-execute the next line `py __main__.py -pl /path/to/manga/chap-01`, it will create inside the same folder a new pdf file with the parent folder name -> `chap-01.pdf`
+execute the next line `py __main__.py -l /path/to/manga/chap-01 -e pdf`, it will create inside the same folder a new pdf file with the parent folder name -> `chap-01.pdf`
 
 ### Example 2: Folder with subfolders 
 We can also give a path to a folder containing several folders:
@@ -124,7 +124,7 @@ If you have the following message :
 > Image contains an alpha channel which will be stored as a separate soft mask (/SMask) image in PDF.
 
 Retry with the following command:  
-  `py __main__.py -kpl /path/to/manga/chap-01`
+  `py __main__.py -kl /path/to/manga/chap-01 -e pdf --force`
 
 But if the problem persists...  
 One of your images has a special property... if you still want convert to PDF, you have to convert your picture to remove the mask.
