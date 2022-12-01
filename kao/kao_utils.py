@@ -125,10 +125,10 @@ def get_series_and_chapters_from_links(list_downloaders: dict[str, Downloader], 
                                        loggers: list[Logger]) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
     """
     Get a tuple of series and chapters with their platform from a list of links
-    :param list_downloaders: all downloaders to use
-    :param links: list of links to get series and chapters
-    :param loggers: list of loggers
-    :return: tuple of series and chapters with their platform like
+    :param list_downloaders: dict[str, Downloader] - all downloaders to use
+    :param links: list[str] - list of links to get series and chapters
+    :param loggers: list[Logger] - list of loggers
+    :return: tuple[list[dict[str, str]], list[dict[str, str]]] - tuple of series and chapters with their platform like
      {platform: 'myWeb', link: 'https://myWeb.example/series/...'}
     """
     functional_links = []
@@ -163,8 +163,8 @@ def get_series_and_chapters_from_links(list_downloaders: dict[str, Downloader], 
 def get_series_from_dict(list_downloaders: dict[str, Downloader], series_links: list[dict[str, str]]) -> list[Series]:
     """
     Get a list of series from a list of series links
-    :param list_downloaders: all downloaders to use
-    :param series_links: list of series to get chapters
+    :param list_downloaders: dict[str, Downloader] - all downloaders to use
+    :param series_links: list[dict[str, str]] - list of series to get chapters
     :return: list[Series] - list of series to download
     """
     series = []
@@ -180,9 +180,9 @@ def get_all_chapters_from_series(list_downloaders: dict[str, Downloader],
                                  series_links: list[dict[str, str]]) -> list[dict[str, str]]:
     """
     Get all chapters from a list of series
-    :param list_downloaders: all downloaders to use
-    :param series_links: list of series to get chapters
-    :return: list of chapters with their platform like
+    :param list_downloaders: dict[str, Downloader] - all downloaders to use
+    :param series_links:  list[dict[str, str]] - list of series to get chapters
+    :return: list[dict[str, str]] - list of chapters with their platform like
      {platform: 'myWeb', link: 'https://myWeb.example/series/...'}
     """
     chapters_to_download: list[dict[str, str]] = []
