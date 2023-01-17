@@ -138,7 +138,8 @@ def keep_only_images_paths(images_list: list[str]) -> list[str]:
     :param images_list: list[str] - The list of paths
     :return: list[str] - The list of images paths
     """
-    images = list(filter(lambda elem: test_is_image(elem), images_list))
+    images = list(filter(lambda elem: not os.path.isdir(elem), images_list))
+    images = list(filter(lambda elem: test_is_image(elem), images))
     # When is personal folder, we need to ensure that all images are images
     for img in images:
         force_image_rgb(img)
