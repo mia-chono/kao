@@ -25,7 +25,7 @@ class MangasOriginesXDownloader(Downloader):
     @staticmethod
     def is_a_chapter_link(link: str) -> bool:
         return re.search(
-            r"https?://(www\.)?x\.mangas-origines\.fr/(oeuvre|mangas)/[\w\-%]+/chapitre-\d+([\w\-%]+)?/?(\?style=(list|paged))?$",
+            r"https?://(www\.)?x\.mangas-origines\.fr/(oeuvre|mangas?)/[\w\-%]+/chapitre-\d+([\w\-%]+)?/?(\?style=(list|paged))?$",
             link) is not None
 
     @staticmethod
@@ -91,7 +91,7 @@ class MangasOriginesXDownloader(Downloader):
 
         soup, dom = self._get_page_content(link)
 
-        series_title = self._clear_name(soup.select_one(".breadcrumb > li:nth-child(3)").text)
+        series_title = self._clear_name(soup.select_one(".breadcrumb > li:nth-child(2)").text)
         series_chapter = self._clear_name(soup.select_one(".breadcrumb > .active").text)
 
         return self._download_chapter_files(dom, series_title, series_chapter, 'https://x.mangas-origines.fr/',
